@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bakery POS Pro - Refined UI Edition</title>
+    <title>Bakery POS Pro - Multi-Role & Wait-Time Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -36,7 +36,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Prevent element overlay click blocking */
         button * {
             pointer-events: none;
         }
@@ -48,14 +47,14 @@
 </head>
 <body class="bg-[#FAF4EE] dark:bg-stone-900 text-toast-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-300">
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation (ROLE SEPARATION NAVBAR) -->
     <header class="bg-toast-900 dark:bg-stone-950 text-amber-50 shadow-md sticky top-0 z-40 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-bread-slice text-amber-400 text-2xl"></i>
                 <div>
-                    <h1 class="font-bold text-base leading-tight">Bakery POS Pro <span id="turbo-badge" class="bg-amber-400 text-toast-950 text-[10px] px-1.5 py-0.5 rounded font-black">PRO</span></h1>
-                    <p class="text-[10px] text-amber-300">ระบบขายขนมปังออกบูธ (ปรับแก้ปุ่มเตาปิ้ง + UI การ์ดมินิมอล)</p>
+                    <h1 class="font-bold text-base leading-tight">Bakery POS System</h1>
+                    <p id="role-title-tag" class="text-[10px] text-amber-300 font-semibold">โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)</p>
                 </div>
             </div>
             
@@ -69,32 +68,26 @@
                 <button onclick="toggleDarkMode()" id="btn-dark" class="text-xs bg-stone-800 hover:bg-stone-700 text-amber-200 px-2.5 py-1.5 rounded-lg border border-stone-700 transition">
                     <i class="fa-solid fa-moon text-amber-300"></i>
                 </button>
-                <button onclick="exportToCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-excel"></i> Excel
-                </button>
                 <button onclick="resetSystemData()" class="text-xs bg-toast-950/60 hover:bg-rose-900 text-amber-200 px-2.5 py-1.5 rounded-lg border border-amber-700/50 transition">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="bg-toast-950/90 dark:bg-stone-900 px-4 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
-            <button onclick="switchTab('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS)
+        <!-- Role Selector Tabs (แยก 3 หน้าชัดเจน) -->
+        <div class="bg-toast-950/90 dark:bg-stone-900 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
+            <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-store"></i> 🛍️ 1. หน้าบ้าน (POS & คิดเงิน)
             </button>
-            <button onclick="switchTab('display')" id="tab-display" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-desktop text-blue-400"></i> 📺 จอโชว์คิวหน้าร้าน
-            </button>
-            <button onclick="switchTab('kitchen')" id="tab-kitchen" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap relative font-medium">
-                <i class="fa-solid fa-fire-burner text-orange-400"></i> 🔥 เตาปิ้ง (Kitchen)
+            <button onclick="switchRole('kitchen')" id="tab-kitchen" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap relative font-medium">
+                <i class="fa-solid fa-fire-burner text-orange-400"></i> 🔥 2. เตาปิ้ง (Kitchen)
                 <span id="kitchen-badge" class="hidden absolute top-1 right-2 bg-rose-600 text-white text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold">0</span>
             </button>
-            <button onclick="switchTab('stock')" id="tab-stock" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-boxes-stacked"></i> 📦 สต็อก
+            <button onclick="switchRole('backoffice')" id="tab-backoffice" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
+                <i class="fa-solid fa-chart-line text-emerald-400"></i> 📊 3. หลังบ้าน (สต็อก & บัญชี)
             </button>
-            <button onclick="switchTab('finance')" id="tab-finance" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-chart-line text-emerald-400"></i> 📊 บัญชี & กราฟ
+            <button onclick="switchRole('display')" id="tab-display" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
+                <i class="fa-solid fa-desktop text-blue-400"></i> 📺 จอโชว์คิวหน้าร้าน
             </button>
         </div>
     </header>
@@ -102,17 +95,32 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto p-4 flex-grow w-full">
         
-        <!-- SECTION 1: POS STOREFRONT -->
-        <section id="sec-pos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- ROLE 1: 🛍️ หน้าบ้าน (POS & CASHIER) -->
+        <section id="role-pos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <!-- Left: Minimal Product Cards (ตามทรงรูปที่ 1) -->
+            <!-- Left: Minimal Product Cards -->
             <div class="md:col-span-2 space-y-4">
+                
+                <!-- ⏳ ESTIMATED WAIT TIME ALERT BAR (ระบบคำนวณเวลารอคิว) -->
+                <div class="bg-amber-100/80 dark:bg-stone-800 border-2 border-amber-300 dark:border-stone-700 rounded-2xl p-3 flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-hourglass-half text-amber-700 dark:text-amber-400 text-lg animate-spin"></i>
+                        <div>
+                            <span class="font-bold text-toast-950 dark:text-stone-200 block">เวลารอคิวโดยประมาณ</span>
+                            <span class="text-[10px] text-stone-500 dark:text-stone-400">คำนวณจากจำนวนออเดอร์ตกค้างบนเตาปิ้ง</span>
+                        </div>
+                    </div>
+                    <div id="wait-time-display" class="font-black text-amber-800 dark:text-amber-300 text-base bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700">
+                        ~0 นาที (0 คิวก่อนหน้า)
+                    </div>
+                </div>
+
                 <div class="flex justify-between items-center">
                     <h2 class="text-base font-bold dark:text-amber-200 flex items-center gap-2">
                         <i class="fa-solid fa-store text-amber-600"></i> รายการขนมปังหน้าร้าน
                     </h2>
                     <span id="sub-info-tag" class="text-xs text-toast-700 bg-amber-100/60 dark:bg-stone-800 dark:text-stone-300 px-3 py-1 rounded-full border border-amber-200 dark:border-stone-700 font-medium">
-                        จิ้มเลือกเมนูเพื่อสั่งซื้อ
+                        เลือกท็อปปิ้งซ้อนได้หลายอย่าง
                     </span>
                 </div>
                 <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -120,10 +128,10 @@
                 </div>
             </div>
 
-            <!-- Right: Ranking Banner (รูปที่ 2) & Cart Panel -->
+            <!-- Right: Ranking Banner & Order Cart Panel -->
             <div class="space-y-4">
                 
-                <!-- 🏆 แถบอันดับขายดีประจำชั่วโมง (วางทางขวาเหนือกล่องออเดอร์) -->
+                <!-- 🏆 แถบอันดับขายดีประจำชั่วโมง -->
                 <div id="ranking-banner" class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-3 text-white shadow-sm flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-trophy text-yellow-300 text-lg animate-bounce"></i>
@@ -175,8 +183,143 @@
             </div>
         </section>
 
-        <!-- SECTION 2: VISUAL QUEUE DISPLAY -->
-        <section id="sec-display" class="hidden space-y-4">
+        <!-- ROLE 2: 🔥 เตาปิ้ง (KITCHEN KDS MONITOR & WASTE TRACKER) -->
+        <section id="role-kitchen" class="hidden space-y-4">
+            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
+                <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
+                            <i class="fa-solid fa-fire-burner text-orange-500"></i> จอคุมเตาปิ้งขนมปัง (Kitchen Display System)
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">ระบบจับเวลาอบขนมปัง พร้อมบันทึกขนมปังไหม้/เสีย</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- 🗑️ WASTE TRACKER BUTTON (ระบบบันทึกขนมปังไหม้/เสีย) -->
+                        <button onclick="openWasteModal()" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-300 dark:border-rose-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash-can text-rose-600"></i> 🗑️ บันทึกขนมปังไหม้/เสีย
+                        </button>
+                    </div>
+                </div>
+
+                <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Dynamic Baking Order Cards -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLE 3: 📊 หลังบ้าน (MANAGEMENT, STOCK & FINANCE) -->
+        <section id="role-backoffice" class="hidden space-y-6">
+            
+            <!-- Management Header -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-600"></i> ระบบบริหารจัดการหลังบ้าน (Back-Office)
+                    </h2>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปสต็อก บัญชีรายรับ-รายจ่าย และต้นทุนความสูญเสีย</p>
+                </div>
+                <button onclick="exportToCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-excel"></i> ส่งออกรายงาน Excel
+                </button>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ยอดขายรวม (รายรับ)</p>
+                    <p id="kpi-revenue" class="text-xl font-bold text-emerald-600">฿0</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินสดในกล่อง</p>
+                    <p id="kpi-cash" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินโอน PromptPay</p>
+                    <p id="kpi-qr" class="text-xl font-bold text-blue-600">฿0</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ต้นทุนวัตถุดิบ (COGS)</p>
+                    <p id="kpi-cogs" class="text-xl font-bold text-toast-900 dark:text-amber-200">฿0</p>
+                </div>
+                <!-- WASTE COST KPI -->
+                <div class="bg-rose-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900">
+                    <p class="text-[11px] text-rose-700 dark:text-rose-400 mb-1 font-bold">ต้นทุนของเสีย (Waste)</p>
+                    <p id="kpi-waste" class="text-xl font-bold text-rose-600 dark:text-rose-400">฿0</p>
+                </div>
+                <div id="kpi-profit-card" class="bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-700">
+                    <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">กำไรสุทธิ (Profit)</p>
+                    <p id="kpi-profit" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">฿0</p>
+                </div>
+            </div>
+
+            <!-- Hourly Sales Peak Chart -->
+            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
+                <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
+                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-amber-500"></i> สรุปความหนาแน่นช่วงเวลาขายดี (Hourly Sales Traffic Peak)
+                    </h3>
+                    <span class="text-xs text-stone-400">ยอดขายแบ่งตามชั่วโมง (08:00 - 22:00 น.)</span>
+                </div>
+
+                <div id="hourly-chart-container" class="flex items-end justify-between gap-2 h-44 pt-6 px-2 overflow-x-auto">
+                    <!-- Dynamic Bars -->
+                </div>
+            </div>
+
+            <!-- Stock Table & Expense Form Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Stock Table -->
+                <div class="md:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-amber-600"></i> จัดการสต็อกขนมปัง
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-amber-100 dark:border-stone-700 text-toast-900 dark:text-amber-300 bg-amber-50/50 dark:bg-stone-900 text-xs">
+                                    <th class="py-2.5 px-3">ชื่อเมนู</th>
+                                    <th class="py-2.5 px-3">ราคา</th>
+                                    <th class="py-2.5 px-3 text-center">คงเหลือ</th>
+                                    <th class="py-2.5 px-3 text-center">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stock-table-body" class="divide-y divide-amber-100 dark:divide-stone-700 text-xs">
+                                <!-- Dynamic Stock Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Expense Form -->
+                <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
+                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-receipt text-rose-500"></i> บันทึกรายจ่ายเพิ่มเติม
+                    </h3>
+                    <form onsubmit="addExpense(event)" class="space-y-3">
+                        <div>
+                            <input type="text" id="exp-title" required placeholder="รายการ (เช่น ค่าเช่าบูธ, ค่าถุง)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <input type="number" id="exp-amount" min="1" required placeholder="จำนวนเงิน (บาท)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-2 rounded-xl transition text-xs">
+                            + บันทึกรายจ่าย
+                        </button>
+                    </form>
+                    <div class="border-t border-stone-100 dark:border-stone-700 pt-2">
+                        <h4 class="text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-1">ประวัติรายจ่ายเพิ่มเติม:</h4>
+                        <div id="expense-list" class="space-y-1 max-h-[110px] overflow-y-auto text-xs">
+                            <!-- Dynamic Expenses -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXTRA: 📺 VISUAL QUEUE DISPLAY (จอแสดงคิวหน้าร้าน) -->
+        <section id="role-display" class="hidden space-y-4">
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-6 shadow-sm border border-amber-200 dark:border-stone-700 text-center">
                 <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 mb-1">📺 สถานะคิวรับขนมปังหน้าร้าน (Live Queue Status)</h2>
                 <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับขนมปังอบอุ่นๆ หน้าร้าน</p>
@@ -202,142 +345,46 @@
                 </div>
             </div>
         </section>
-
-        <!-- SECTION 3: KITCHEN BAKE TIMER MONITOR (รูปที่ 3 - แก้ไขปุ่มกดให้ติดลื่น 100%) -->
-        <section id="sec-kitchen" class="hidden space-y-4">
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700">
-                <div class="flex justify-between items-center mb-4 border-b border-amber-100 dark:border-stone-700 pb-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
-                            <i class="fa-solid fa-fire-burner text-orange-500"></i> จอคุมเตาปิ้งขนมปัง (Kitchen Monitor)
-                        </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">ระบบจับเวลาอบขนมปังและเตือนคิวพร้อมเสิร์ฟ</p>
-                    </div>
-                    <div class="text-xs bg-amber-50 dark:bg-stone-900 text-toast-900 dark:text-amber-300 font-medium px-3 py-1.5 rounded-xl border border-amber-200 dark:border-stone-700">
-                        เนย/กระเทียม 90s | ซอส/นมนัว 120s
-                    </div>
-                </div>
-
-                <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Dynamic Baking Order Cards -->
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 4: STOCK MANAGEMENT -->
-        <section id="sec-stock" class="hidden space-y-4">
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-toast-950 dark:text-amber-200">📦 จัดการสต็อกขนมปัง</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-amber-100 dark:border-stone-700 text-toast-900 dark:text-amber-300 bg-amber-50/50 dark:bg-stone-900 text-sm">
-                                <th class="py-3 px-4">ชื่อเมนู</th>
-                                <th class="py-3 px-4">ราคาขาย</th>
-                                <th class="py-3 px-4 text-center">จำนวนคงเหลือ (ชิ้น)</th>
-                                <th class="py-3 px-4 text-center">สถานะสต็อก</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stock-table-body" class="divide-y divide-amber-100 dark:divide-stone-700 text-sm">
-                            <!-- Dynamic Stock Rows -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 5: EXECUTIVE FINANCE DASHBOARD -->
-        <section id="sec-finance" class="hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-emerald-600"></i> สรุปบัญชีรายรับ-รายจ่ายหลังบ้าน
-                    </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปผลการดำเนินงานหน้าร้านและช่วงเวลาขายดีแบบ Real-time</p>
-                </div>
-            </div>
-
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ยอดขายรวม (รายรับ)</p>
-                    <p id="kpi-revenue" class="text-xl font-bold text-emerald-600">฿0</p>
-                </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินสดในกล่องเงินทอน</p>
-                    <p id="kpi-cash" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
-                </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินโอน PromptPay</p>
-                    <p id="kpi-qr" class="text-xl font-bold text-blue-600">฿0</p>
-                </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ต้นทุนวัตถุดิบ (COGS)</p>
-                    <p id="kpi-cogs" class="text-xl font-bold text-toast-900 dark:text-amber-200">฿0</p>
-                </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รายจ่ายอื่นๆ (ค่าบูธ/ถุง)</p>
-                    <p id="kpi-expenses" class="text-xl font-bold text-rose-600">฿0</p>
-                </div>
-                <div id="kpi-profit-card" class="bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-700">
-                    <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">กำไรสุทธิ (Profit)</p>
-                    <p id="kpi-profit" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">฿0</p>
-                </div>
-            </div>
-
-            <!-- Hourly Traffic Chart -->
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
-                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-amber-500"></i> สรุปความหนาแน่นช่วงเวลาขายดี (Hourly Sales Traffic Peak)
-                    </h3>
-                    <span class="text-xs text-stone-400">ยอดขายแบ่งตามชั่วโมง (08:00 - 22:00 น.)</span>
-                </div>
-
-                <div id="hourly-chart-container" class="flex items-end justify-between gap-2 h-44 pt-6 px-2 overflow-x-auto">
-                    <!-- Dynamic Bars -->
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Expense Form -->
-                <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-receipt text-rose-500"></i> บันทึกรายจ่ายเพิ่มเติม
-                    </h3>
-                    <form onsubmit="addExpense(event)" class="space-y-3">
-                        <div>
-                            <input type="text" id="exp-title" required placeholder="รายการ (เช่น ค่าเช่าบูธ, ค่าถุง)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <input type="number" id="exp-amount" min="1" required placeholder="จำนวนเงิน (บาท)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        </div>
-                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-2 rounded-xl transition text-xs">
-                            + บันทึกรายจ่าย
-                        </button>
-                    </form>
-                    <div class="border-t border-stone-100 dark:border-stone-700 pt-2">
-                        <h4 class="text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-1">ประวัติรายจ่ายเพิ่มเติม:</h4>
-                        <div id="expense-list" class="space-y-1 max-h-[110px] overflow-y-auto text-xs">
-                            <!-- Dynamic Expenses -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sales Breakdown -->
-                <div class="md:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700">
-                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm mb-3 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-ol text-amber-700 dark:text-amber-400"></i> สรุปจำนวนยอดขายแยกตามรายการสินค้า
-                    </h3>
-                    <div id="sales-summary-list" class="space-y-2 text-xs max-h-[220px] overflow-y-auto pr-1">
-                        <!-- Dynamic Sales Summary -->
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
+
+    <!-- 🗑️ WASTE TRACKER MODAL (ป๊อปอัพบันทึกขนมปังไหม้/เสีย) -->
+    <div id="waste-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
+            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
+                <h3 class="font-bold text-rose-700 dark:text-rose-400 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> บันทึกขนมปังไหม้ / เสียหาย
+                </h3>
+                <button onclick="closeWasteModal()" class="text-stone-400 hover:text-stone-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">เลือกเมนูที่เสีย:</label>
+                    <select id="waste-product-select" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                        <!-- Dynamic Products -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">จำนวนที่เสีย (ชิ้น):</label>
+                    <input type="number" id="waste-qty-input" min="1" value="1" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">สาเหตุความเสียหาย:</label>
+                    <select id="waste-reason-select" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                        <option value="ปิ้งไหม้">ปิ้งไหม้บนเตา</option>
+                        <option value="ตกพื้น">ตกพื้น / สกปรก</option>
+                        <option value="ทาหน้าผิด">ทาซอส/ท็อปปิ้งผิดหน้า</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="confirmWasteLog()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-md">
+                บันทึกตัดสต็อกของเสีย
+            </button>
+        </div>
+    </div>
 
     <!-- OPTION SELECTION MODAL -->
     <div id="option-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
@@ -541,6 +588,7 @@
         let products = JSON.parse(localStorage.getItem('bakery_products')) || DEFAULT_PRODUCTS;
         let salesHistory = JSON.parse(localStorage.getItem('bakery_sales')) || [];
         let expenses = JSON.parse(localStorage.getItem('bakery_expenses')) || [];
+        let wasteHistory = JSON.parse(localStorage.getItem('bakery_waste')) || [];
         let currentQueue = parseInt(localStorage.getItem('bakery_queue')) || 1;
         let bakingOrders = JSON.parse(localStorage.getItem('bakery_baking_orders')) || [];
 
@@ -573,6 +621,7 @@
             updateTopRanking();
             renderKitchenMonitor();
             renderVisualQueueDisplay();
+            updateEstimatedWaitTime();
             drawGachaWheel();
 
             setInterval(updateKitchenTimers, 1000);
@@ -582,6 +631,7 @@
             localStorage.setItem('bakery_products', JSON.stringify(products));
             localStorage.setItem('bakery_sales', JSON.stringify(salesHistory));
             localStorage.setItem('bakery_expenses', JSON.stringify(expenses));
+            localStorage.setItem('bakery_waste', JSON.stringify(wasteHistory));
             localStorage.setItem('bakery_queue', currentQueue.toString());
             localStorage.setItem('bakery_baking_orders', JSON.stringify(bakingOrders));
         }
@@ -591,6 +641,39 @@
                 localStorage.clear();
                 location.reload();
             }
+        }
+
+        // ROLE SEPARATION ROUTING (สลับโหมดหน้าจอ 3 โหมดหลัก)
+        function switchRole(roleId) {
+            ['pos', 'kitchen', 'backoffice', 'display'].forEach(r => {
+                const sec = document.getElementById(`role-${r}`);
+                if (sec) sec.classList.add('hidden');
+                
+                const tab = document.getElementById(`tab-${r}`);
+                if (tab) {
+                    tab.classList.remove('border-amber-400', 'text-amber-300', 'font-bold');
+                    tab.classList.add('border-transparent', 'text-amber-200/70', 'font-medium');
+                }
+            });
+
+            const activeSec = document.getElementById(`role-${roleId}`);
+            if (activeSec) activeSec.classList.remove('hidden');
+
+            const activeTab = document.getElementById(`tab-${roleId}`);
+            if (activeTab) {
+                activeTab.classList.remove('border-transparent', 'text-amber-200/70', 'font-medium');
+                activeTab.classList.add('border-amber-400', 'text-amber-300', 'font-bold');
+            }
+
+            const titleTag = document.getElementById('role-title-tag');
+            if (roleId === 'pos') titleTag.innerText = 'โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)';
+            if (roleId === 'kitchen') titleTag.innerText = 'โหมด: 🔥 เตาปิ้ง (Kitchen Display)';
+            if (roleId === 'backoffice') titleTag.innerText = 'โหมด: 📊 หลังบ้าน (สต็อก & บัญชี)';
+            if (roleId === 'display') titleTag.innerText = 'โหมด: 📺 จอโชว์คิวหน้าร้าน';
+
+            if (roleId === 'display') renderVisualQueueDisplay();
+            if (roleId === 'backoffice') { renderStock(); renderFinance(); }
+            if (roleId === 'kitchen') renderKitchenMonitor();
         }
 
         function updateQueueDisplay() {
@@ -617,41 +700,42 @@
         function toggleTurboMode() {
             isTurboMode = !isTurboMode;
             const btn = document.getElementById('btn-turbo');
-            const badge = document.getElementById('turbo-badge');
-            const banner = document.getElementById('ranking-banner');
             const subInfo = document.getElementById('sub-info-tag');
 
             if (isTurboMode) {
                 btn.className = "text-xs bg-amber-400 text-toast-950 font-black px-3 py-1.5 rounded-lg transition animate-pulse";
-                badge.innerText = "⚡ TURBO ON";
-                banner.classList.add('hidden');
-                subInfo.classList.add('hidden');
+                if(subInfo) subInfo.classList.add('hidden');
             } else {
                 btn.className = "text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-bold px-3 py-1.5 rounded-lg border border-amber-400/30 transition flex items-center gap-1.5";
-                badge.innerText = "PRO";
-                banner.classList.remove('hidden');
-                subInfo.classList.remove('hidden');
+                if(subInfo) subInfo.classList.remove('hidden');
             }
             renderProducts();
         }
 
-        function switchTab(tabId) {
-            ['pos', 'display', 'kitchen', 'stock', 'finance'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
-                const btn = document.getElementById(`tab-${t}`);
-                btn.classList.remove('border-amber-400', 'text-amber-300', 'font-bold');
-                btn.classList.add('border-transparent', 'text-amber-200/70', 'font-medium');
+        // ⏳ ESTIMATED WAIT TIME CALCULATION (ระบบคำนวณเวลารอคิว)
+        function updateEstimatedWaitTime() {
+            const activeBakingOrders = bakingOrders.filter(o => o.status === 'Baking');
+            const totalPendingQueues = activeBakingOrders.length;
+
+            let totalWaitSeconds = 0;
+            activeBakingOrders.forEach(order => {
+                const maxBakeTime = Math.max(...order.items.map(i => i.bakeTimeSec || 90));
+                const elapsedSec = Math.floor((Date.now() - order.startTime) / 1000);
+                totalWaitSeconds += Math.max(0, maxBakeTime - elapsedSec);
             });
 
-            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-${tabId}`);
-            activeBtn.classList.remove('border-transparent', 'text-amber-200/70', 'font-medium');
-            activeBtn.classList.add('border-amber-400', 'text-amber-300', 'font-bold');
+            const estMinutes = Math.ceil(totalWaitSeconds / 60);
+            const displayEl = document.getElementById('wait-time-display');
 
-            if (tabId === 'display') renderVisualQueueDisplay();
-            if (tabId === 'stock') renderStock();
-            if (tabId === 'finance') renderFinance();
-            if (tabId === 'kitchen') renderKitchenMonitor();
+            if (totalPendingQueues === 0) {
+                displayEl.innerText = '~0 นาที (ไม่มีคิวก่อนหน้า)';
+                displayEl.className = "font-bold text-emerald-600 dark:text-emerald-400 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-emerald-200 dark:border-stone-700";
+            } else {
+                displayEl.innerText = `~${estMinutes} นาที (${totalPendingQueues} คิวก่อนหน้า)`;
+                displayEl.className = estMinutes > 10 
+                    ? "font-black text-rose-600 dark:text-rose-400 text-sm bg-rose-50 dark:bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-300 dark:border-rose-800 animate-pulse" 
+                    : "font-black text-amber-800 dark:text-amber-300 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700";
+            }
         }
 
         function updateTopRanking() {
@@ -671,10 +755,8 @@
             }
         }
 
-        // 🎨 UI UPDATE: ปรับการ์ดสินค้าเป็นรูปสไตล์รูปที่ 1 (ไอคอนมินิมอลอยู่ล่างชื่อ)
         function renderProducts() {
             const grid = document.getElementById('product-grid');
-
             grid.className = isTurboMode ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-4";
 
             grid.innerHTML = products.map(p => {
@@ -685,7 +767,6 @@
                         class="bg-white dark:bg-stone-800 rounded-3xl p-5 shadow-sm border-2 ${p.stock > 0 ? 'border-amber-400/90 dark:border-amber-500/60 hover:border-amber-500' : 'border-stone-200 opacity-50'} cursor-pointer active:scale-95 transition flex flex-col justify-between min-h-[140px] relative overflow-hidden">
                         
                         <div>
-                            <!-- Header Title & Icon below title -->
                             <div class="flex justify-between items-start">
                                 <div>
                                     <h3 class="font-bold text-toast-950 dark:text-stone-100 text-lg leading-snug">${p.name}</h3>
@@ -697,7 +778,6 @@
                             </div>
                         </div>
 
-                        <!-- Footer Stock & Price -->
                         <div class="flex justify-between items-end border-t border-amber-100/60 dark:border-stone-700/60 pt-3 mt-3">
                             <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                                 เหลือ ${p.stock} ชิ้น
@@ -1019,6 +1099,50 @@
             openQRModal();
         }
 
+        // 🗑️ INVENTORY WASTE TRACKER LOGIC (ระบบบันทึกขนมปังไหม้/เสีย)
+        function openWasteModal() {
+            const select = document.getElementById('waste-product-select');
+            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name} (ต้นทุน ฿${p.baseCost})</option>`).join('');
+            document.getElementById('waste-modal').classList.remove('hidden');
+        }
+
+        function closeWasteModal() {
+            document.getElementById('waste-modal').classList.add('hidden');
+        }
+
+        function confirmWasteLog() {
+            const prodId = document.getElementById('waste-product-select').value;
+            const qty = parseInt(document.getElementById('waste-qty-input').value) || 1;
+            const reason = document.getElementById('waste-reason-select').value;
+
+            const product = products.find(p => p.id === prodId);
+            if (!product) return;
+
+            if (product.stock < qty) {
+                return alert('จำนวนสต็อกสินค้าคงเหลือไม่พอตัดของเสีย');
+            }
+
+            product.stock -= qty;
+            const totalWasteCost = product.baseCost * qty;
+
+            wasteHistory.push({
+                id: 'w_' + Date.now(),
+                productId: product.id,
+                productName: product.name,
+                qty: qty,
+                wasteCost: totalWasteCost,
+                reason: reason,
+                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            saveData();
+            alert(`บันทึกของเสียสำเร็จ: ${product.name} x${qty} ชิ้น (ตัดต้นทุนเสีย ฿${totalWasteCost})`);
+            closeWasteModal();
+            renderStock();
+            renderProducts();
+            renderFinance();
+        }
+
         // Gacha Wheel Logic
         function drawGachaWheel() {
             const canvas = document.getElementById('gacha-wheel-canvas');
@@ -1091,7 +1215,6 @@
             }, 4000);
         }
 
-        // Transaction & Kitchen Integration
         function completeTransaction(paymentMethod) {
             cart.forEach(item => {
                 const product = products.find(p => p.id === item.productId);
@@ -1131,10 +1254,10 @@
             updateTopRanking();
             renderProducts();
             renderVisualQueueDisplay();
+            updateEstimatedWaitTime();
             clearCart();
         }
 
-        // 🔧 KITCHEN MONITOR LOGIC (แก้ไขปุ่มกดให้ทำงานติดลื่น 100%)
         function renderKitchenMonitor() {
             const container = document.getElementById('kitchen-cards-container');
             const activeOrders = bakingOrders.filter(o => o.status !== 'Done');
@@ -1180,7 +1303,7 @@
                             `).join('')}
                         </div>
 
-                        <button onclick="finishBakingOrder('${order.id}')" class="w-full ${isReady ? 'bg-emerald-600 hover:bg-emerald-700 shadow-sm' : 'bg-emerald-600 hover:bg-emerald-700'} text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
+                        <button onclick="finishBakingOrder('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
                             ✓ ยกขึ้นเตา (เสร็จคิวเสิร์ฟ)
                         </button>
                     </div>
@@ -1191,6 +1314,7 @@
         function updateKitchenTimers() {
             renderKitchenMonitor();
             renderVisualQueueDisplay();
+            updateEstimatedWaitTime();
         }
 
         function finishBakingOrder(orderId) {
@@ -1200,6 +1324,7 @@
                 saveData();
                 renderKitchenMonitor();
                 renderVisualQueueDisplay();
+                updateEstimatedWaitTime();
             }
         }
 
@@ -1241,25 +1366,25 @@
                 saveData();
                 renderVisualQueueDisplay();
                 renderKitchenMonitor();
+                updateEstimatedWaitTime();
             }
         }
 
-        // Stock Logic
         function renderStock() {
             const tbody = document.getElementById('stock-table-body');
             tbody.innerHTML = products.map(p => `
                 <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-700/40 transition">
-                    <td class="py-3 px-4 font-medium text-toast-950 dark:text-stone-100">${p.name}</td>
-                    <td class="py-3 px-4 text-stone-600 dark:text-stone-300">฿${p.basePrice}</td>
-                    <td class="py-3 px-4 text-center">
+                    <td class="py-2.5 px-3 font-medium text-toast-950 dark:text-stone-100">${p.name}</td>
+                    <td class="py-2.5 px-3 text-stone-600 dark:text-stone-300">฿${p.basePrice}</td>
+                    <td class="py-2.5 px-3 text-center">
                         <div class="inline-flex items-center bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700">
-                            <button onclick="changeStock('${p.id}', -1)" class="px-2.5 py-1 text-stone-600 dark:text-stone-300 font-bold">-1</button>
-                            <span class="px-3 font-bold text-toast-950 dark:text-white">${p.stock}</span>
-                            <button onclick="changeStock('${p.id}', 1)" class="px-2.5 py-1 text-stone-600 dark:text-stone-300 font-bold">+1</button>
+                            <button onclick="changeStock('${p.id}', -1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">-1</button>
+                            <span class="px-2.5 font-bold text-toast-950 dark:text-white">${p.stock}</span>
+                            <button onclick="changeStock('${p.id}', 1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">+1</button>
                         </div>
                     </td>
-                    <td class="py-3 px-4 text-center">
-                        <span class="text-xs ${p.stock > 10 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'} px-2 py-1 rounded-full font-medium">
+                    <td class="py-2.5 px-3 text-center">
+                        <span class="text-[10px] ${p.stock > 10 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'} px-2 py-0.5 rounded-full font-medium">
                             ${p.stock > 0 ? 'พร้อมขาย' : 'หมด'}
                         </span>
                     </td>
@@ -1277,20 +1402,24 @@
             }
         }
 
-        // Finance & Hourly Chart
+        // Finance Dashboard with Waste Cost Deductions
         function renderFinance() {
             const totalRevenue = salesHistory.reduce((sum, s) => sum + s.revenue, 0);
             const totalCash = salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
             const totalQR = salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod === 'PromptPay' ? s.revenue : 0)), 0);
             
             const totalCOGS = salesHistory.reduce((sum, s) => sum + s.cost, 0);
+            const totalWasteCost = wasteHistory.reduce((sum, w) => sum + w.wasteCost, 0);
             const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-            const netProfit = totalRevenue - totalCOGS - totalExpenses;
+            
+            // Profit = Revenue - COGS - Expenses - Waste
+            const netProfit = totalRevenue - totalCOGS - totalExpenses - totalWasteCost;
 
             document.getElementById('kpi-revenue').innerText = `฿${totalRevenue.toLocaleString()}`;
             document.getElementById('kpi-cash').innerText = `฿${totalCash.toLocaleString()}`;
             document.getElementById('kpi-qr').innerText = `฿${totalQR.toLocaleString()}`;
             document.getElementById('kpi-cogs').innerText = `฿${totalCOGS.toLocaleString()}`;
+            document.getElementById('kpi-waste').innerText = `฿${totalWasteCost.toLocaleString()}`;
             document.getElementById('kpi-expenses').innerText = `฿${totalExpenses.toLocaleString()}`;
             
             const profitEl = document.getElementById('kpi-profit');
@@ -1315,33 +1444,6 @@
                     <div class="flex justify-between items-center bg-stone-50 dark:bg-stone-900 p-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300">
                         <span>${e.title}</span>
                         <span class="font-bold text-rose-600 dark:text-rose-400">฿${e.amount.toLocaleString()}</span>
-                    </div>
-                `).join('');
-            }
-
-            const salesSummaryList = document.getElementById('sales-summary-list');
-            const summaryMap = {};
-
-            salesHistory.forEach(sale => {
-                sale.items.forEach(item => {
-                    const nameKey = item.optionName ? `${item.name} (${item.optionName})` : item.name;
-                    if (!summaryMap[nameKey]) summaryMap[nameKey] = { qty: 0, revenue: 0 };
-                    summaryMap[nameKey].qty += item.qty;
-                    summaryMap[nameKey].revenue += item.price * item.qty;
-                });
-            });
-
-            const keys = Object.keys(summaryMap);
-            if (keys.length === 0) {
-                salesSummaryList.innerHTML = '<p class="text-stone-400 text-xs py-4 text-center">ยังไม่มีประวัติการขาย</p>';
-            } else {
-                salesSummaryList.innerHTML = keys.map(k => `
-                    <div class="flex justify-between items-center p-2 bg-amber-50/50 dark:bg-stone-900 rounded-xl border border-amber-100 dark:border-stone-700">
-                        <div>
-                            <p class="font-bold text-toast-950 dark:text-stone-100">${k}</p>
-                            <p class="text-[11px] text-stone-500 dark:text-stone-400">จำนวนที่ขายได้: ${summaryMap[k].qty} ชิ้น</p>
-                        </div>
-                        <span class="font-bold text-amber-900 dark:text-amber-400 text-sm">฿${summaryMap[k].revenue.toLocaleString()}</span>
                     </div>
                 `).join('');
             }
