@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakery POS Pro - Turbo & Visual Queue Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bakery POS Pro - Hourly Chart & Gacha Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -29,7 +29,21 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Prompt', sans-serif; }
+        body { font-family: 'Prompt', sans-serif; touch-action: manipulation; }
+        
+        button, a, input, select {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Prevent icon click blocking */
+        button i, button span {
+            pointer-events: none;
+        }
+
+        #gacha-wheel-canvas {
+            transition: transform 4s cubic-bezier(0.15, 0.99, 0.18, 0.99);
+        }
     </style>
 </head>
 <body class="bg-[#FAF4EE] dark:bg-stone-900 text-toast-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-300">
@@ -41,16 +55,20 @@
                 <i class="fa-solid fa-bread-slice text-amber-400 text-2xl"></i>
                 <div>
                     <h1 class="font-bold text-base leading-tight">Bakery POS Pro <span id="turbo-badge" class="bg-amber-400 text-toast-950 text-[10px] px-1.5 py-0.5 rounded font-black">PRO</span></h1>
-                    <p class="text-[10px] text-amber-300">ระบบขายขนมปังออกบูธ (Turbo Mode + จอโชว์คิว + จ่ายผสม)</p>
+                    <p class="text-[10px] text-amber-300">ระบบขายขนมปังออกบูธ (กราฟยอดขาย + วงล้อ Gacha + Turbo Mode)</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-2">
-                <!-- ⚡ Panic / Turbo Mode Button -->
-                <button onclick="toggleTurboMode()" id="btn-turbo" class="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-bold px-3 py-1.5 rounded-lg border border-amber-400/30 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bolt text-yellow-400"></i> <span class="hidden sm:inline">Turbo Mode</span>
+                <!-- 🎰 Gacha Wheel Trigger Button -->
+                <button onclick="openGachaModal()" class="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 animate-pulse">
+                    <i class="fa-solid fa-dharmachakra text-yellow-300"></i> <span class="hidden sm:inline">สุ่มดวง (฿30)</span>
                 </button>
-                <!-- 🌙 Ghost / Auto Dark Mode Button -->
+                <!-- ⚡ Turbo Mode Button -->
+                <button onclick="toggleTurboMode()" id="btn-turbo" class="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-bold px-3 py-1.5 rounded-lg border border-amber-400/30 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i> <span class="hidden sm:inline">Turbo</span>
+                </button>
+                <!-- 🌙 Ghost Mode Button -->
                 <button onclick="toggleDarkMode()" id="btn-dark" class="text-xs bg-stone-800 hover:bg-stone-700 text-amber-200 px-2.5 py-1.5 rounded-lg border border-stone-700 transition">
                     <i class="fa-solid fa-moon text-amber-300"></i>
                 </button>
@@ -63,7 +81,7 @@
             </div>
         </div>
 
-        <!-- Mode Switcher Tabs -->
+        <!-- Navigation Tabs -->
         <div class="bg-toast-950/90 dark:bg-stone-900 px-4 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
             <button onclick="switchTab('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS)
@@ -79,7 +97,7 @@
                 <i class="fa-solid fa-boxes-stacked"></i> 📦 สต็อก
             </button>
             <button onclick="switchTab('finance')" id="tab-finance" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-chart-line text-emerald-400"></i> 📊 บัญชี
+                <i class="fa-solid fa-chart-line text-emerald-400"></i> 📊 บัญชี & กราฟ
             </button>
         </div>
     </header>
@@ -87,7 +105,7 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto p-4 flex-grow w-full">
         
-        <!-- SECTION 1: POS STOREFRONT -->
+        <!-- SECTION 1: POS SYSTEM -->
         <section id="sec-pos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Left: Product Cards & Ranking -->
             <div class="md:col-span-2 space-y-4">
@@ -155,14 +173,13 @@
             </div>
         </section>
 
-        <!-- SECTION 2: 🎟️ VISUAL QUEUE DISPLAY (จอแสดงคิวหน้าร้านสำหรับลูกค้า) -->
+        <!-- SECTION 2: VISUAL QUEUE DISPLAY -->
         <section id="sec-display" class="hidden space-y-4">
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-6 shadow-sm border border-toast-200 dark:border-stone-700 text-center">
                 <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 mb-1">📺 สถานะคิวรับขนมปังหน้าร้าน (Live Queue Status)</h2>
                 <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับขนมปังอบอุ่นๆ หน้าร้าน</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- กำลังปิ้ง/อบ -->
                     <div class="bg-amber-50 dark:bg-stone-900 border-2 border-amber-300 dark:border-amber-600 rounded-2xl p-5 space-y-4">
                         <div class="flex justify-center items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-lg border-b border-amber-200 dark:border-stone-700 pb-2">
                             <i class="fa-solid fa-fire-burner animate-bounce"></i> กำลังปิ้งอบอยู่บนเตา...
@@ -172,7 +189,6 @@
                         </div>
                     </div>
 
-                    <!-- ปิ้งเสร็จแล้ว พร้อมรับ! -->
                     <div class="bg-emerald-50 dark:bg-stone-900 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-5 space-y-4">
                         <div class="flex justify-center items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-lg border-b border-emerald-200 dark:border-stone-700 pb-2">
                             <i class="fa-solid fa-bell animate-pulse"></i> ปิ้งเสร็จแล้ว พร้อมรับ! ✨
@@ -230,14 +246,14 @@
             </div>
         </section>
 
-        <!-- SECTION 5: EXECUTIVE FINANCE DASHBOARD -->
+        <!-- SECTION 5: EXECUTIVE FINANCE & HOURLY CHART DASHBOARD -->
         <section id="sec-finance" class="hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-emerald-600"></i> สรุปบัญชีรายรับ-รายจ่ายหลังบ้าน
                     </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปผลการดำเนินงานหน้าร้านแบบ Real-time</p>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปผลการดำเนินงานหน้าร้านและช่วงเวลาขายดีแบบ Real-time</p>
                 </div>
             </div>
 
@@ -266,6 +282,20 @@
                 <div id="kpi-profit-card" class="bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-700">
                     <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">กำไรสุทธิ (Profit)</p>
                     <p id="kpi-profit" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">฿0</p>
+                </div>
+            </div>
+
+            <!-- 📈 HOURLY SALES TRAFFIC PEAK CHART (ระบบสรุปช่วงเวลาขายดี) -->
+            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-toast-200 dark:border-stone-700 space-y-4">
+                <div class="flex justify-between items-center border-b border-toast-100 dark:border-stone-700 pb-3">
+                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-amber-500"></i> สรุปความหนาแน่นช่วงเวลาขายดี (Hourly Sales Traffic Peak)
+                    </h3>
+                    <span class="text-xs text-stone-400">ยอดขายแบ่งตามชั่วโมง (08:00 - 22:00 น.)</span>
+                </div>
+
+                <div id="hourly-chart-container" class="flex items-end justify-between gap-2 h-44 pt-6 px-2 overflow-x-auto">
+                    <!-- Dynamic Bars generated by JS -->
                 </div>
             </div>
 
@@ -336,7 +366,7 @@
         </div>
     </div>
 
-    <!-- TOUCH NUMPAD CASH MODAL (เงินสด) -->
+    <!-- TOUCH NUMPAD CASH MODAL -->
     <div id="cash-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
             <div class="flex justify-between items-center border-b border-toast-100 dark:border-stone-700 pb-2">
@@ -357,7 +387,6 @@
                     <p id="cash-change-display" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">฿0</p>
                 </div>
 
-                <!-- Quick Buttons -->
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
                     <button onclick="pressNumpad('exact')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-toast-950 dark:text-white text-xs py-2 rounded-lg font-bold">พอดี</button>
                     <button onclick="pressNumpad('add50')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+50</button>
@@ -365,7 +394,6 @@
                     <button onclick="pressNumpad('add500')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+500</button>
                 </div>
 
-                <!-- Numpad Grid -->
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
                     <button onclick="pressNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">1</button>
                     <button onclick="pressNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">2</button>
@@ -416,7 +444,7 @@
         </div>
     </div>
 
-    <!-- 🔀 SPLIT PAYMENT MODAL (อัปเดตใช้แป้นพิมพ์ปุ่มกด Numpad ตามรูปภาพ) -->
+    <!-- SPLIT PAYMENT MODAL -->
     <div id="split-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-3">
             <div class="flex justify-between items-center border-b border-toast-100 dark:border-stone-700 pb-2">
@@ -439,7 +467,6 @@
                     <span>2. ยอดเงินสดคงเหลือ: <b id="split-cash-show" class="text-emerald-600 dark:text-emerald-400 text-sm">฿0</b></span>
                 </div>
 
-                <!-- Split Numpad Quick Buttons -->
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
                     <button onclick="pressSplitNumpad('add20')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+20</button>
                     <button onclick="pressSplitNumpad('add50')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+50</button>
@@ -447,7 +474,6 @@
                     <button onclick="pressSplitNumpad('half')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-toast-950 dark:text-amber-200 text-xs py-1.5 rounded-lg font-bold">ครึ่งนึง</button>
                 </div>
 
-                <!-- Split Numpad Touch Buttons (ปุ่มกดแบบหน้าเงินสด) -->
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
                     <button onclick="pressSplitNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">1</button>
                     <button onclick="pressSplitNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">2</button>
@@ -469,6 +495,34 @@
 
             <button onclick="proceedSplitQRStep()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">
                 ถัดไป ➔ สแกนโอน QR
+            </button>
+        </div>
+    </div>
+
+    <!-- 🎰 GACHA MYSTERY WHEEL MODAL (หมุนวงล้อสุ่ม ฿30) -->
+    <div id="gacha-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
+            <div class="flex justify-between items-center border-b border-toast-100 dark:border-stone-700 pb-2">
+                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base">🎰 สุ่มดวงขนมปัง (฿30)</h3>
+                <button onclick="closeGachaModal()" class="text-stone-400 hover:text-stone-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="gacha-display" class="py-2 space-y-3">
+                <div class="relative w-56 h-56 mx-auto flex items-center justify-center">
+                    <!-- Needle -->
+                    <div class="absolute -top-2 z-10 text-rose-600 text-3xl drop-shadow">
+                        <i class="fa-solid fa-location-pin fa-rotate-180"></i>
+                    </div>
+                    <!-- Wheel Canvas -->
+                    <canvas id="gacha-wheel-canvas" width="220" height="220" class="rounded-full shadow-md border-4 border-amber-400"></canvas>
+                </div>
+                <p id="gacha-status-text" class="text-xs text-stone-500 dark:text-stone-400 font-medium">กดหมุนวงล้อเพื่อสุ่มขนมปัง + ท็อปปิ้งพิเศษในราคาคุ้ม ฿30</p>
+            </div>
+
+            <button onclick="spinGachaWheel()" id="btn-spin-gacha" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">
+                หมุนวงล้อสุ่มดวงเลย!
             </button>
         </div>
     </div>
@@ -495,16 +549,17 @@
         let selectedOptions = [];
         let numpadAmountStr = "0";
 
-        // States & Flags
+        // States
         let isTurboMode = false;
         let isDarkMode = false;
         let isSplitPaymentActive = false;
         let splitNumpadStr = "0";
         let splitQRPart = 0;
         let splitCashPart = 0;
+        let isSpinningGacha = false;
+        let currentWheelRotation = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Auto Dark Mode หลัง 18:00 น.
             const currentHour = new Date().getHours();
             if (currentHour >= 18 || currentHour < 6) {
                 setDarkMode(true);
@@ -518,6 +573,7 @@
             updateTopRanking();
             renderKitchenMonitor();
             renderVisualQueueDisplay();
+            drawGachaWheel();
 
             setInterval(updateKitchenTimers, 1000);
         });
@@ -541,7 +597,6 @@
             document.getElementById('next-queue-tag').innerText = `คิวถัดไป: #${currentQueue}`;
         }
 
-        // Dark Mode & Turbo Mode Controls
         function toggleDarkMode() {
             setDarkMode(!isDarkMode);
         }
@@ -599,7 +654,6 @@
             if (tabId === 'kitchen') renderKitchenMonitor();
         }
 
-        // Real-time Ranking Tracker
         function updateTopRanking() {
             const counts = {};
             salesHistory.forEach(sale => {
@@ -617,27 +671,31 @@
             }
         }
 
-        // POS Product Grid
+        // ⚡ TURBO MODE UPDATE: ปรับปรุงการ์ดให้แสดงสเปก/ท็อปปิ้ง/ราคาชัดเจนครบถ้วน
         function renderProducts() {
             const grid = document.getElementById('product-grid');
 
             if (isTurboMode) {
-                // Turbo Mode UI (ปุ่มเมนูกับราคาใหญ่ยักษ์ คีย์เร็วขึ้น 3 เท่า)
                 grid.className = "grid grid-cols-2 gap-3";
                 grid.innerHTML = products.map(p => `
                     <button onclick="handleSelectProduct('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''}
-                        class="bg-white dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-stone-700 p-5 rounded-2xl border-2 ${p.stock > 0 ? 'border-amber-500' : 'border-stone-300 opacity-50'} text-left flex flex-col justify-between h-36 active:scale-95 transition shadow-md">
+                        class="bg-white dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-stone-700 p-4 rounded-2xl border-2 ${p.stock > 0 ? 'border-amber-500' : 'border-stone-300 opacity-50'} text-left flex flex-col justify-between min-h-[140px] active:scale-95 transition shadow-md">
                         <div>
-                            <span class="font-black text-xl text-toast-950 dark:text-white block leading-tight">${p.name}</span>
-                            <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600' : 'text-rose-600'}">เหลือ ${p.stock} ชิ้น</span>
+                            <div class="flex items-center justify-between gap-1 mb-1">
+                                <span class="font-black text-lg text-toast-950 dark:text-white leading-tight">${p.name}</span>
+                                <i class="fa-solid ${p.icon} text-amber-600 text-base"></i>
+                            </div>
+                            <p class="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-1">
+                                ${p.options.length > 0 ? `ท็อปปิ้ง: ${p.options.map(o => o.name).join(', ')}` : 'ไม่มีท็อปปิ้ง'}
+                            </p>
                         </div>
-                        <div class="text-right">
-                            <span class="text-2xl font-black text-amber-700 dark:text-amber-400">฿${p.basePrice}</span>
+                        <div class="flex justify-between items-end border-t border-stone-100 dark:border-stone-700 pt-2 mt-2">
+                            <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600' : 'text-rose-600'}">เหลือ ${p.stock} ชิ้น</span>
+                            <span class="text-xl font-black text-amber-700 dark:text-amber-400">฿${p.basePrice}</span>
                         </div>
                     </button>
                 `).join('');
             } else {
-                // Normal Mode UI
                 grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4";
                 grid.innerHTML = products.map(p => `
                     <div class="bg-white dark:bg-stone-800 rounded-2xl p-4 shadow-sm border border-toast-200 dark:border-stone-700 flex flex-col justify-between hover:border-toast-500 transition">
@@ -674,7 +732,7 @@
             const product = products.find(p => p.id === productId);
             if (!product || product.stock <= 0) return;
 
-            if (product.options.length === 0 || isTurboMode) {
+            if (product.options.length === 0) {
                 addToCart(product, []);
             } else {
                 openOptionModal(product);
@@ -817,7 +875,7 @@
             document.getElementById('cart-total').innerText = `฿${subtotal}`;
         }
 
-        // Cash Numpad Modal Logic
+        // Cash Numpad Modal
         function openCashModal() {
             if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = isSplitPaymentActive ? splitCashPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -884,7 +942,7 @@
             completeTransaction(isSplitPaymentActive ? 'จ่ายผสม (สแกน+เงินสด)' : 'เงินสด');
         }
 
-        // PromptPay QR Modal Logic
+        // PromptPay QR Modal
         function openQRModal() {
             if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = isSplitPaymentActive ? splitQRPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -908,7 +966,7 @@
             }
         }
 
-        // 🔀 SPLIT PAYMENT NUMPAD LOGIC (ปุ่มกดแบบรับเงินสด ตามรูปภาพ)
+        // Split Payment Numpad Modal
         function openSplitPaymentModal() {
             if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -978,6 +1036,79 @@
             openQRModal();
         }
 
+        // 🎰 GACHA MYSTERY WHEEL LOGIC (ดึงวงล้อสุ่มกลับมาสมบูรณ์)
+        function drawGachaWheel() {
+            const canvas = document.getElementById('gacha-wheel-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const numSlices = products.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+            const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#8B5CF6'];
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            products.forEach((p, i) => {
+                const angle = i * sliceAngle;
+                ctx.beginPath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.moveTo(110, 110);
+                ctx.arc(110, 110, 110, angle, angle + sliceAngle);
+                ctx.lineTo(110, 110);
+                ctx.fill();
+
+                // Draw Text
+                ctx.save();
+                ctx.translate(110, 110);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 11px Prompt";
+                ctx.fillText(p.name.slice(0, 10), 95, 4);
+                ctx.restore();
+            });
+        }
+
+        function openGachaModal() {
+            document.getElementById('gacha-status-text').innerText = 'กดหมุนวงล้อเพื่อสุ่มขนมปัง + ท็อปปิ้งพิเศษในราคาคุ้ม ฿30';
+            document.getElementById('btn-spin-gacha').disabled = false;
+            document.getElementById('gacha-modal').classList.remove('hidden');
+            drawGachaWheel();
+        }
+
+        function closeGachaModal() {
+            if (isSpinningGacha) return;
+            document.getElementById('gacha-modal').classList.add('hidden');
+        }
+
+        function spinGachaWheel() {
+            if (isSpinningGacha) return;
+            isSpinningGacha = true;
+            document.getElementById('btn-spin-gacha').disabled = true;
+
+            const wheel = document.getElementById('gacha-wheel-canvas');
+            const randomProductIndex = Math.floor(Math.random() * products.length);
+            const selectedProduct = products[randomProductIndex];
+
+            const sliceDegree = 360 / products.length;
+            const targetDegree = 360 - (randomProductIndex * sliceDegree) - (sliceDegree / 2);
+            const totalRotation = currentWheelRotation + 1440 + targetDegree - (currentWheelRotation % 360);
+            
+            currentWheelRotation = totalRotation;
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinningGacha = false;
+                let randomOpt = null;
+                if (selectedProduct.options.length > 0) {
+                    randomOpt = selectedProduct.options[Math.floor(Math.random() * selectedProduct.options.length)];
+                }
+
+                document.getElementById('gacha-status-text').innerText = `🎉 ยินดีด้วย! สุ่มได้: ${selectedProduct.name} ${randomOpt ? `(+${randomOpt.name})` : ''} (เพิ่มลงตระกร้าเรียบร้อย)`;
+                
+                addToCart(selectedProduct, randomOpt ? [randomOpt] : []);
+            }, 4000);
+        }
+
         // Transaction & Kitchen Integration
         function completeTransaction(paymentMethod) {
             cart.forEach(item => {
@@ -996,10 +1127,12 @@
                 startTime: Date.now()
             });
 
+            const now = new Date();
             salesHistory.push({
                 id: 's_' + Date.now(),
                 queue: currentQueue,
-                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                hour: now.getHours(),
                 items: [...cart],
                 revenue: totalRevenue,
                 cost: totalCost,
@@ -1088,7 +1221,6 @@
             }
         }
 
-        // 🎟️ Visual Queue Display Logic (จอโชว์คิวหน้าร้าน)
         function renderVisualQueueDisplay() {
             const bakingContainer = document.getElementById('display-baking-queues');
             const readyContainer = document.getElementById('display-ready-queues');
@@ -1163,7 +1295,7 @@
             }
         }
 
-        // Finance Dashboard Logic
+        // 📈 HOURLY CHART & FINANCE LOGIC (คำนวณสรุปช่วงเวลาขายดี)
         function renderFinance() {
             const totalRevenue = salesHistory.reduce((sum, s) => sum + s.revenue, 0);
             const totalCash = salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
@@ -1191,6 +1323,10 @@
                 profitEl.className = "text-2xl font-black text-emerald-700 dark:text-emerald-300";
             }
 
+            // Render Hourly Sales Traffic Peak Chart
+            renderHourlyChart();
+
+            // Expenses & Itemized Breakdown
             const expList = document.getElementById('expense-list');
             if (expenses.length === 0) {
                 expList.innerHTML = '<p class="text-stone-400 text-[11px]">ยังไม่มีการบันทึกรายจ่าย</p>';
@@ -1229,6 +1365,33 @@
                     </div>
                 `).join('');
             }
+        }
+
+        function renderHourlyChart() {
+            const chartContainer = document.getElementById('hourly-chart-container');
+            const hourlySales = Array(15).fill(0); // 08:00 - 22:00 (15 hours)
+
+            salesHistory.forEach(s => {
+                const h = s.hour !== undefined ? s.hour : 12;
+                if (h >= 8 && h <= 22) {
+                    hourlySales[h - 8] += s.revenue;
+                }
+            });
+
+            const maxRevenue = Math.max(...hourlySales, 1);
+
+            chartContainer.innerHTML = hourlySales.map((revenue, idx) => {
+                const hourLabel = (idx + 8).toString().padStart(2, '0') + ':00';
+                const heightPercent = Math.max(10, Math.round((revenue / maxRevenue) * 100));
+
+                return `
+                    <div class="flex flex-col items-center flex-1 min-w-[36px] h-full justify-end group">
+                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold opacity-0 group-hover:opacity-100 transition">฿${revenue}</span>
+                        <div class="w-full bg-gradient-to-t from-amber-600 to-toast-500 rounded-t-lg transition-all duration-500 group-hover:from-amber-500 group-hover:to-amber-400" style="height: ${heightPercent}%;"></div>
+                        <span class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-1">${hourLabel}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         function addExpense(e) {
