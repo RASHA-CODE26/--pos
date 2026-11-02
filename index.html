@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bakery POS Pro - Refined Navigation & Expense Edition</title>
+    <title>Bakery POS Pro - 3-Stage Kitchen Pipeline & Expense Tracker</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -47,7 +47,7 @@
 </head>
 <body class="bg-[#FAF4EE] dark:bg-stone-900 text-toast-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-300">
 
-    <!-- Header Navigation (ไม่มีตัวเลขกำกับหัวข้อ) -->
+    <!-- Header Navigation -->
     <header class="bg-toast-900 dark:bg-stone-950 text-amber-50 shadow-md sticky top-0 z-40 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
             <div class="flex items-center space-x-2">
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <!-- Role Selector Tabs (ปรับลำดับ: หน้าบ้าน -> จอโชว์คิว -> เตาปิ้ง -> หลังบ้าน แบบไม่มีตัวเลข) -->
+        <!-- Navigation Bar -->
         <div class="bg-toast-950/90 dark:bg-stone-900 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
             <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS & คิดเงิน)
@@ -107,7 +107,7 @@
                         <i class="fa-solid fa-hourglass-half text-amber-700 dark:text-amber-400 text-lg animate-spin"></i>
                         <div>
                             <span class="font-bold text-toast-950 dark:text-stone-200 block">เวลารอคิวโดยประมาณ</span>
-                            <span class="text-[10px] text-stone-500 dark:text-stone-400">คำนวณจากจำนวนออเดอร์ตกค้างบนเตาปิ้ง</span>
+                            <span class="text-[10px] text-stone-500 dark:text-stone-400">คำนวณจากคิวหม้อทอด (200s) + กระทะ (60s) + แต่งหน้า (300s)</span>
                         </div>
                     </div>
                     <div id="wait-time-display" class="font-black text-amber-800 dark:text-amber-300 text-base bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700">
@@ -211,7 +211,7 @@
             </div>
         </section>
 
-        <!-- ROLE 3: 🔥 เตาปิ้ง (KITCHEN KDS MONITOR & WASTE TRACKER) -->
+        <!-- ROLE 3: 🔥 เตาปิ้ง 3 ขั้นตอน (KITCHEN 3-STAGE PIPELINE) -->
         <section id="role-kitchen" class="hidden space-y-4">
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
                 <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
@@ -219,7 +219,7 @@
                         <h2 class="text-lg font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
                             <i class="fa-solid fa-fire-burner text-orange-500"></i> จอคุมเตาปิ้งขนมปัง (Kitchen Display System)
                         </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">ระบบจับเวลาอบขนมปัง พร้อมบันทึกขนมปังไหม้/เสีย</p>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">ระบบส่งต่อ 3 ขั้นตอน: 1.หม้อทอด (200s) ➔ 2.กระทะ (60s) ➔ 3.แต่งหน้า (5min)</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="openWasteModal()" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-300 dark:border-rose-700 flex items-center gap-1.5">
@@ -229,12 +229,12 @@
                 </div>
 
                 <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Dynamic Baking Order Cards -->
+                    <!-- Dynamic Baking Pipeline Cards -->
                 </div>
             </div>
         </section>
 
-        <!-- ROLE 4: 📊 หลังบ้าน (MANAGEMENT, STOCK & EXPENSES) -->
+        <!-- ROLE 4: 📊 หลังบ้าน (MANAGEMENT, STOCK & EXPENSE TRACKER) -->
         <section id="role-backoffice" class="hidden space-y-6">
             
             <!-- Management Header -->
@@ -243,7 +243,7 @@
                     <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
                         <i class="fa-solid fa-chart-line text-emerald-600"></i> ระบบบริหารจัดการหลังบ้าน (Back-Office)
                     </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปสต็อก บัญชีรายรับ-รายจ่าย และเลือกประเภทต้นทุนทุนวัตถุดิบ/อุปกรณ์</p>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปสต็อก บัญชีรายรับ-รายจ่าย และคำนวณยอดรวมรายจ่ายแยกประเภททุน</p>
                 </div>
                 <button onclick="exportToCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
                     <i class="fa-solid fa-file-excel"></i> ส่งออกรายงาน Excel
@@ -318,7 +318,7 @@
                     </div>
                 </div>
 
-                <!-- 🧾 Expense Form (เพิ่มตัวเลือกแยกประเภท ทุนวัตถุดิบ VS ทุนอุปกรณ์ ตามรูปที่ 1) -->
+                <!-- 🧾 Expense Form (แก้ไขบั๊กการบันทึก + คำนวณสรุปยอดรวมทันที) -->
                 <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
                     <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-1.5">
                         <i class="fa-solid fa-receipt text-rose-500"></i> บันทึกรายจ่ายเพิ่มเติม
@@ -337,16 +337,21 @@
                                 <option value="equipment">🛠️ ทุนอุปกรณ์ / ค่าเช่าบูธ / ถุง</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-2.5 rounded-xl transition text-xs shadow-sm">
+                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-sm">
                             + บันทึกรายจ่าย
                         </button>
                     </form>
 
-                    <!-- ประวัติรายจ่ายเพิ่มเติม (แสดงผลชัดเจนเมื่อกดบันทึก) -->
-                    <div class="border-t border-stone-100 dark:border-stone-700 pt-3">
-                        <h4 class="text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-2">ประวัติรายจ่ายเพิ่มเติมที่บันทึกแล้ว:</h4>
+                    <!-- สรุปยอดรวมรายจ่าย + แสดงประวัติรายการ -->
+                    <div class="border-t border-stone-100 dark:border-stone-700 pt-3 space-y-2">
+                        <div class="bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900 flex justify-between items-center">
+                            <span class="text-xs font-bold text-rose-800 dark:text-rose-300">ยอดรวมรายจ่ายบันทึกแล้ว:</span>
+                            <span id="total-expense-summary-tag" class="text-base font-black text-rose-600 dark:text-rose-400">฿0</span>
+                        </div>
+
+                        <h4 class="text-[11px] font-bold text-stone-600 dark:text-stone-400 pt-1">ประวัติรายการที่บันทึกแล้ว:</h4>
                         <div id="expense-list" class="space-y-1.5 max-h-[140px] overflow-y-auto text-xs pr-1">
-                            <!-- Dynamic Expenses -->
+                            <!-- Dynamic Expenses List -->
                         </div>
                     </div>
                 </div>
@@ -650,7 +655,6 @@
             }
         }
 
-        // ROLE ROUTING LOGIC (ลำดับใหม่: POS -> Display -> Kitchen -> Backoffice แบบไม่มีตัวเลข)
         function switchRole(roleId) {
             ['pos', 'display', 'kitchen', 'backoffice'].forEach(r => {
                 const sec = document.getElementById(`role-${r}`);
@@ -719,15 +723,16 @@
             renderProducts();
         }
 
+        // ⏳ ESTIMATED WAIT TIME CALCULATION (คำนวณเวลารอคิว 3 ขั้นตอน)
         function updateEstimatedWaitTime() {
-            const activeBakingOrders = bakingOrders.filter(o => o.status === 'Baking');
+            const activeBakingOrders = bakingOrders.filter(o => o.status !== 'Done');
             const totalPendingQueues = activeBakingOrders.length;
 
             let totalWaitSeconds = 0;
             activeBakingOrders.forEach(order => {
-                const maxBakeTime = Math.max(...order.items.map(i => i.bakeTimeSec || 90));
                 const elapsedSec = Math.floor((Date.now() - order.startTime) / 1000);
-                totalWaitSeconds += Math.max(0, maxBakeTime - elapsedSec);
+                const totalBakeSec = 200 + 60 + 300; // 560 วินาที
+                totalWaitSeconds += Math.max(0, totalBakeSec - elapsedSec);
             });
 
             const estMinutes = Math.ceil(totalWaitSeconds / 60);
@@ -738,7 +743,7 @@
                 displayEl.className = "font-bold text-emerald-600 dark:text-emerald-400 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-emerald-200 dark:border-stone-700";
             } else {
                 displayEl.innerText = `~${estMinutes} นาที (${totalPendingQueues} คิวก่อนหน้า)`;
-                displayEl.className = estMinutes > 10 
+                displayEl.className = estMinutes > 15 
                     ? "font-black text-rose-600 dark:text-rose-400 text-sm bg-rose-50 dark:bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-300 dark:border-rose-800 animate-pulse" 
                     : "font-black text-amber-800 dark:text-amber-300 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700";
             }
@@ -881,7 +886,6 @@
                     optionName: optionNames,
                     price: price,
                     cost: cost,
-                    bakeTimeSec: product.bakeTimeSec || 90,
                     qty: 1
                 });
             }
@@ -1221,6 +1225,7 @@
             }, 4000);
         }
 
+        // TRANSACTION & KITCHEN PIPELINE INITIALIZATION
         function completeTransaction(paymentMethod) {
             cart.forEach(item => {
                 const product = products.find(p => p.id === item.productId);
@@ -1230,11 +1235,13 @@
             const totalRevenue = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const totalCost = cart.reduce((sum, item) => sum + (item.cost * item.qty), 0);
 
+            // ส่งออเดอร์เข้าเตาปิ้งที่ขั้นตอน 1: AirFryer (หม้อทอด)
             bakingOrders.push({
                 id: 'b_' + Date.now(),
                 queue: currentQueue,
                 items: [...cart],
-                status: 'Baking',
+                stage: 'AirFryer', // Stages: AirFryer (200s) -> Pan (60s) -> Topping (300s) -> Ready -> Done
+                stageStartTime: Date.now(),
                 startTime: Date.now()
             });
 
@@ -1253,7 +1260,7 @@
                 splitCash: isSplitPaymentActive ? splitCashPart : (paymentMethod === 'เงินสด' ? totalRevenue : 0)
             });
 
-            alert(`ชำระเงินสำเร็จ! คิวที่ #${currentQueue} (ส่งเข้าจอเตาปิ้งแล้ว)`);
+            alert(`ชำระเงินสำเร็จ! คิวที่ #${currentQueue} (ส่งเข้าหม้อทอดขั้นที่ 1 เรียบร้อย)`);
             currentQueue += 1;
             saveData();
             updateQueueDisplay();
@@ -1264,6 +1271,7 @@
             clearCart();
         }
 
+        // 🔥 KITCHEN 3-STAGE PIPELINE RENDER (ระบบเตาปิ้ง 3 ขั้นตอน)
         function renderKitchenMonitor() {
             const container = document.getElementById('kitchen-cards-container');
             const activeOrders = bakingOrders.filter(o => o.status !== 'Done');
@@ -1286,17 +1294,57 @@
             }
 
             container.innerHTML = activeOrders.map(order => {
-                const maxBakeTime = Math.max(...order.items.map(i => i.bakeTimeSec || 90));
-                const elapsedSec = Math.floor((Date.now() - order.startTime) / 1000);
-                const remainSec = Math.max(0, maxBakeTime - elapsedSec);
-                const isReady = remainSec === 0 || order.status === 'Ready';
+                const elapsedSec = Math.floor((Date.now() - (order.stageStartTime || order.startTime)) / 1000);
+                
+                let stageName = '';
+                let targetSec = 0;
+                let badgeClass = '';
+                let borderClass = '';
+                let nextBtnText = '';
+                let nextStage = '';
+
+                if (order.stage === 'AirFryer' || !order.stage) {
+                    stageName = '1. 💨 หม้อทอดไร้น้ำมัน';
+                    targetSec = 200;
+                    badgeClass = 'bg-blue-600 text-white';
+                    borderClass = 'border-blue-400 bg-blue-50/30 dark:bg-blue-950/30';
+                    nextBtnText = '➔ ส่งไปลงกระทะ (ขั้นที่ 2)';
+                    nextStage = 'Pan';
+                } else if (order.stage === 'Pan') {
+                    stageName = '2. 🍳 ปิ้งบนกระทะ';
+                    targetSec = 60;
+                    badgeClass = 'bg-orange-500 text-white';
+                    borderClass = 'border-orange-400 bg-orange-50/30 dark:bg-orange-950/30';
+                    nextBtnText = '➔ ส่งไปแต่งหน้าขนม (ขั้นที่ 3)';
+                    nextStage = 'Topping';
+                } else if (order.stage === 'Topping') {
+                    stageName = '3. 🎨 ตกแต่งหน้าตา';
+                    targetSec = 300;
+                    badgeClass = 'bg-purple-600 text-white';
+                    borderClass = 'border-purple-400 bg-purple-50/30 dark:bg-purple-950/30';
+                    nextBtnText = '✓ อบเสร็จเสิร์ฟหน้าร้าน';
+                    nextStage = 'Ready';
+                } else if (order.stage === 'Ready' || order.status === 'Ready') {
+                    stageName = '✨ พร้อมเสิร์ฟหน้าร้าน';
+                    targetSec = 0;
+                    badgeClass = 'bg-emerald-600 text-white';
+                    borderClass = 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/50 shadow-md';
+                    nextBtnText = '✓ มอบให้ลูกค้าแล้ว (จบงาน)';
+                    nextStage = 'Done';
+                }
+
+                const remainSec = Math.max(0, targetSec - elapsedSec);
+                const isStageOver = remainSec === 0 && targetSec > 0;
 
                 return `
-                    <div class="bg-white dark:bg-stone-900 rounded-2xl p-4 border ${isReady ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/40 shadow-md' : 'border-amber-200 dark:border-stone-700'} space-y-3">
+                    <div class="bg-white dark:bg-stone-900 rounded-2xl p-4 border-2 ${borderClass} space-y-3 shadow-sm">
                         <div class="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-2">
-                            <span class="font-bold text-toast-950 dark:text-stone-100 text-base">คิวคิวที่ #${order.queue}</span>
-                            <span class="text-xs ${isReady ? 'bg-emerald-600 text-white' : 'bg-orange-500 text-white'} font-bold px-2.5 py-0.5 rounded-full animate-pulse">
-                                ${isReady ? 'ปิ้งเสร็จแล้ว!' : `เหลืออีก ${remainSec} วินาที`}
+                            <div>
+                                <span class="font-black text-toast-950 dark:text-stone-100 text-base">คิวที่ #${order.queue}</span>
+                                <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-bold">${stageName}</span>
+                            </div>
+                            <span class="text-xs ${isStageOver ? 'bg-rose-600 text-white animate-bounce' : badgeClass} font-bold px-2.5 py-1 rounded-xl">
+                                ${targetSec === 0 ? 'เสร็จแล้ว' : (isStageOver ? 'ครบเวลาแล้ว!' : `เหลืออีก ${remainSec}s`)}
                             </span>
                         </div>
                         
@@ -1309,12 +1357,31 @@
                             `).join('')}
                         </div>
 
-                        <button onclick="finishBakingOrder('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
-                            ✓ ยกขึ้นเตา (เสร็จคิวเสิร์ฟ)
+                        <button onclick="advanceKitchenStage('${order.id}', '${nextStage}')" class="w-full ${order.stage === 'Ready' || order.status === 'Ready' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-toast-900 hover:bg-toast-950 dark:bg-amber-600 dark:hover:bg-amber-700'} text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+                            ${nextBtnText}
                         </button>
                     </div>
                 `;
             }).join('');
+        }
+
+        // ส่งต่อออเดอร์ไปยังขั้นตอนถัดไปใน Pipeline
+        function advanceKitchenStage(orderId, nextStage) {
+            const order = bakingOrders.find(o => o.id === orderId);
+            if (order) {
+                if (nextStage === 'Done') {
+                    order.status = 'Done';
+                    order.stage = 'Done';
+                } else {
+                    order.stage = nextStage;
+                    order.stageStartTime = Date.now();
+                    if (nextStage === 'Ready') order.status = 'Ready';
+                }
+                saveData();
+                renderKitchenMonitor();
+                renderVisualQueueDisplay();
+                updateEstimatedWaitTime();
+            }
         }
 
         function updateKitchenTimers() {
@@ -1323,23 +1390,12 @@
             updateEstimatedWaitTime();
         }
 
-        function finishBakingOrder(orderId) {
-            const order = bakingOrders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'Done';
-                saveData();
-                renderKitchenMonitor();
-                renderVisualQueueDisplay();
-                updateEstimatedWaitTime();
-            }
-        }
-
         function renderVisualQueueDisplay() {
             const bakingContainer = document.getElementById('display-baking-queues');
             const readyContainer = document.getElementById('display-ready-queues');
 
-            const bakingOrdersList = bakingOrders.filter(o => o.status === 'Baking');
-            const readyOrdersList = bakingOrders.filter(o => o.status === 'Ready');
+            const bakingOrdersList = bakingOrders.filter(o => o.status !== 'Ready' && o.status !== 'Done');
+            const readyOrdersList = bakingOrders.filter(o => o.status === 'Ready' || o.stage === 'Ready');
 
             if (bakingOrdersList.length === 0) {
                 bakingContainer.innerHTML = `<span class="text-xs text-stone-400">ไม่มีคิวที่กำลังปิ้ง</span>`;
@@ -1369,6 +1425,7 @@
             const order = bakingOrders.find(o => o.id === orderId);
             if (order) {
                 order.status = 'Done';
+                order.stage = 'Done';
                 saveData();
                 renderVisualQueueDisplay();
                 renderKitchenMonitor();
@@ -1408,21 +1465,20 @@
             }
         }
 
-        // 🧾 EXPENSE LOGIC WITH MATERIAL VS EQUIPMENT COST SEPARATION
+        // 🧾 EXPENSE LOGIC & REAL-TIME SUMMARY RENDER (แก้บั๊กบันทึกรายจ่าย + คำนวณสรุปยอด)
         function renderFinance() {
             const totalRevenue = salesHistory.reduce((sum, s) => sum + s.revenue, 0);
             const totalCash = salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
             const totalQR = salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod === 'PromptPay' ? s.revenue : 0)), 0);
             
-            // แยกประเภททุนวัตถุดิบและอุปกรณ์
             const baseCOGS = salesHistory.reduce((sum, s) => sum + s.cost, 0);
             const extraMaterialExpenses = expenses.filter(e => e.type === 'material').reduce((sum, e) => sum + e.amount, 0);
             const totalCOGS = baseCOGS + extraMaterialExpenses;
 
             const equipmentExpenses = expenses.filter(e => e.type === 'equipment' || !e.type).reduce((sum, e) => sum + e.amount, 0);
             const totalWasteCost = wasteHistory.reduce((sum, w) => sum + w.wasteCost, 0);
+            const grandTotalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
             
-            // Profit = Revenue - Total COGS - Equipment Expenses - Waste Cost
             const netProfit = totalRevenue - totalCOGS - equipmentExpenses - totalWasteCost;
 
             document.getElementById('kpi-revenue').innerText = `฿${totalRevenue.toLocaleString()}`;
@@ -1432,6 +1488,10 @@
             document.getElementById('kpi-waste').innerText = `฿${totalWasteCost.toLocaleString()}`;
             document.getElementById('kpi-expenses').innerText = `฿${equipmentExpenses.toLocaleString()}`;
             
+            // อัปเดตยอดรวมรายจ่ายในฟอร์มบันทึก
+            const expSummaryTag = document.getElementById('total-expense-summary-tag');
+            if (expSummaryTag) expSummaryTag.innerText = `฿${grandTotalExpenses.toLocaleString()}`;
+
             const profitEl = document.getElementById('kpi-profit');
             profitEl.innerText = `฿${netProfit.toLocaleString()}`;
             
@@ -1446,7 +1506,7 @@
 
             renderHourlyChart();
 
-            // แสดงรายการประวัติรายจ่ายที่บันทึกแล้วชัดเจน
+            // แสดงรายการประวัติรายจ่ายเพิ่มเติม
             const expList = document.getElementById('expense-list');
             if (expenses.length === 0) {
                 expList.innerHTML = '<p class="text-stone-400 text-[11px]">ยังไม่มีประวัติการบันทึกรายจ่ายเพิ่มเติม</p>';
@@ -1492,9 +1552,13 @@
 
         function addExpense(e) {
             e.preventDefault();
-            const title = document.getElementById('exp-title').value.trim();
-            const amount = parseFloat(document.getElementById('exp-amount').value);
-            const type = document.getElementById('exp-type').value;
+            const titleInput = document.getElementById('exp-title');
+            const amountInput = document.getElementById('exp-amount');
+            const typeInput = document.getElementById('exp-type');
+
+            const title = titleInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+            const type = typeInput.value;
 
             if (title && amount > 0) {
                 expenses.push({ 
@@ -1504,8 +1568,8 @@
                     type: type 
                 });
                 saveData();
-                document.getElementById('exp-title').value = '';
-                document.getElementById('exp-amount').value = '';
+                titleInput.value = '';
+                amountInput.value = '';
                 renderFinance();
             }
         }
