@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bakery POS Pro - 3-Stage Kitchen Pipeline & Live Expense Tracker</title>
-    <!-- Tailwind CSS CDN -->
+    <title>โมจิทอด POS - ระบบหน้าร้าน & บัญชีรายรับ-รายจ่าย Real-Time</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
@@ -13,11 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        toast: {
+                        mochi: {
                             50: '#FFFBEB',
-                            100: '#FAF4EE',
+                            100: '#FEF3C7',
                             200: '#FDE68A',
-                            500: '#D97706',
+                            500: '#F59E0B',
                             700: '#B45309',
                             900: '#78350F',
                             950: '#451A03'
@@ -30,453 +29,316 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Prompt', sans-serif; touch-action: manipulation; }
-        
-        button, a, input, select {
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        button * {
-            pointer-events: none;
-        }
-
-        #gacha-wheel-canvas {
-            transition: transform 4s cubic-bezier(0.15, 0.99, 0.18, 0.99);
-        }
+        button, a, input, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        button * { pointer-events: none; }
     </style>
 </head>
-<body class="bg-[#FAF4EE] dark:bg-stone-900 text-toast-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-300">
+<body class="bg-[#FFFDF7] dark:bg-stone-900 text-mochi-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-200">
 
-    <!-- Header Navigation -->
-    <header class="bg-toast-900 dark:bg-stone-950 text-amber-50 shadow-md sticky top-0 z-40 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-bread-slice text-amber-400 text-2xl"></i>
+    <!-- Header -->
+    <header class="bg-mochi-900 dark:bg-stone-950 text-amber-50 shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
+                <span class="text-2xl">🍡</span>
                 <div>
-                    <h1 class="font-bold text-base leading-tight">Bakery POS System</h1>
-                    <p id="role-title-tag" class="text-[10px] text-amber-300 font-semibold">โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)</p>
+                    <h1 class="font-bold text-base leading-tight flex items-center gap-2">
+                        ร้านโมจิทอด POS
+                        <span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-normal">● Real-Time</span>
+                    </h1>
+                    <p id="role-title-tag" class="text-[11px] text-amber-300 font-medium">โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <button onclick="openGachaModal()" class="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 animate-pulse">
-                    <i class="fa-solid fa-dharmachakra text-yellow-300"></i> <span class="hidden sm:inline">สุ่มดวง (฿30)</span>
-                </button>
-                <button onclick="toggleTurboMode()" id="btn-turbo" class="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-bold px-3 py-1.5 rounded-lg border border-amber-400/30 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bolt text-yellow-400"></i> <span class="hidden sm:inline">Turbo</span>
-                </button>
-                <button onclick="toggleDarkMode()" id="btn-dark" class="text-xs bg-stone-800 hover:bg-stone-700 text-amber-200 px-2.5 py-1.5 rounded-lg border border-stone-700 transition">
-                    <i class="fa-solid fa-moon text-amber-300"></i>
-                </button>
-                <button onclick="resetSystemData()" class="text-xs bg-toast-950/60 hover:bg-rose-900 text-amber-200 px-2.5 py-1.5 rounded-lg border border-amber-700/50 transition">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-            </div>
+            <button onclick="toggleDarkMode()" id="btn-dark" class="text-xs bg-stone-800 hover:bg-stone-700 text-amber-200 px-3 py-1.5 rounded-lg border border-stone-700 transition">
+                <i class="fa-solid fa-moon text-amber-300"></i>
+            </button>
         </div>
 
         <!-- Role Selector Tabs -->
-        <div class="bg-toast-950/90 dark:bg-stone-900 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
+        <div class="bg-mochi-950/90 dark:bg-stone-900 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
             <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS & คิดเงิน)
+                <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS)
             </button>
             <button onclick="switchRole('display')" id="tab-display" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
                 <i class="fa-solid fa-desktop text-blue-400"></i> 📺 จอโชว์คิวหน้าร้าน
             </button>
             <button onclick="switchRole('kitchen')" id="tab-kitchen" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap relative font-medium">
-                <i class="fa-solid fa-fire-burner text-orange-400"></i> 🔥 เตาปิ้ง (Kitchen)
+                <i class="fa-solid fa-fire text-orange-400"></i> 🔥 เตาทอด (Kitchen)
                 <span id="kitchen-badge" class="hidden absolute top-1 right-2 bg-rose-600 text-white text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold">0</span>
             </button>
             <button onclick="switchRole('backoffice')" id="tab-backoffice" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-chart-line text-emerald-400"></i> 📊 หลังบ้าน (สต็อก & บัญชี)
+                <i class="fa-solid fa-book text-emerald-400"></i> 📊 หลังบ้าน (สต็อก & บัญชี)
             </button>
         </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="max-w-7xl mx-auto p-4 flex-grow w-full">
         
-        <!-- ROLE 1: 🛍️ หน้าบ้าน (POS & CASHIER) -->
+        <!-- ROLE 1: POS -->
         <section id="role-pos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Left: Product Cards -->
             <div class="md:col-span-2 space-y-4">
-                
-                <!-- ESTIMATED WAIT TIME ALERT BAR -->
-                <div class="bg-amber-100/80 dark:bg-stone-800 border-2 border-amber-300 dark:border-stone-700 rounded-2xl p-3 flex justify-between items-center text-xs">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-hourglass-half text-amber-700 dark:text-amber-400 text-lg animate-spin"></i>
-                        <div>
-                            <span class="font-bold text-toast-950 dark:text-stone-200 block">เวลารอคิวโดยประมาณ</span>
-                            <span class="text-[10px] text-stone-500 dark:text-stone-400">คำนวณจากคิวหม้อทอด (200s) + กระทะ (60s) + แต่งหน้า (300s)</span>
-                        </div>
-                    </div>
-                    <div id="wait-time-display" class="font-black text-amber-800 dark:text-amber-300 text-base bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700">
-                        ~0 นาที (0 คิวก่อนหน้า)
-                    </div>
-                </div>
-
                 <div class="flex justify-between items-center">
                     <h2 class="text-base font-bold dark:text-amber-200 flex items-center gap-2">
-                        <i class="fa-solid fa-store text-amber-600"></i> รายการขนมปังหน้าร้าน
+                        <span>🍡</span> เลือกไซส์โมจิทอด
                     </h2>
-                    <span id="sub-info-tag" class="text-xs text-toast-700 bg-amber-100/60 dark:bg-stone-800 dark:text-stone-300 px-3 py-1 rounded-full border border-amber-200 dark:border-stone-700 font-medium">
-                        เลือกท็อปปิ้งซ้อนได้หลายอย่าง
+                    <span class="text-xs text-mochi-700 bg-amber-100/70 dark:bg-stone-800 dark:text-stone-300 px-3 py-1 rounded-full border border-amber-200 dark:border-stone-700 font-medium">
+                        กดเลือกเมนูเพื่อเพิ่มออปชั่นเสริม
                     </span>
                 </div>
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Dynamic Product Cards -->
-                </div>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
 
-            <!-- Right: Ranking Banner & Order Cart Panel -->
-            <div class="space-y-4">
-                
-                <!-- แถบอันดับขายดีประจำชั่วโมง -->
-                <div id="ranking-banner" class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-3 text-white shadow-sm flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-trophy text-yellow-300 text-lg animate-bounce"></i>
+            <!-- Cart Panel -->
+            <div class="bg-white dark:bg-stone-800 rounded-2xl p-4 shadow-sm border border-amber-200/80 dark:border-stone-700 flex flex-col justify-between h-[540px]">
+                <div>
+                    <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3 mb-3">
                         <div>
-                            <span class="text-xs font-bold block leading-tight">เมนูขายดีประจำชั่วโมง</span>
-                            <span class="text-[10px] text-amber-100">Real-time Ranking</span>
+                            <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-basket-shopping text-amber-600"></i> ออเดอร์ปัจจุบัน
+                            </h3>
+                            <span id="next-queue-tag" class="text-[11px] text-amber-900 bg-amber-100 px-2 py-0.5 rounded font-bold">คิวถัดไป: #1</span>
                         </div>
+                        <button onclick="clearCart()" class="text-xs text-rose-600 dark:text-rose-400 hover:underline">ล้างตะกร้า</button>
                     </div>
-                    <div id="top-rank-display" class="text-xs font-bold bg-amber-950/40 px-2.5 py-1 rounded-xl border border-amber-300/30 text-yellow-200">
-                        กำลังคำนวณ...
-                    </div>
+                    <div id="cart-items" class="space-y-2.5 overflow-y-auto max-h-[300px] pr-1"></div>
                 </div>
 
-                <!-- Order Panel -->
-                <div class="bg-white dark:bg-stone-800 rounded-2xl p-4 shadow-sm border border-amber-200/80 dark:border-stone-700 flex flex-col justify-between h-[510px] transition-colors duration-300">
-                    <div>
-                        <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3 mb-3">
-                            <div>
-                                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base flex items-center gap-2">
-                                    <i class="fa-solid fa-basket-shopping text-amber-600"></i> ออเดอร์ปัจจุบัน
-                                </h3>
-                                <span id="next-queue-tag" class="text-[11px] text-amber-900 bg-amber-100 px-2 py-0.5 rounded font-bold">คิวถัดไป: #1</span>
-                            </div>
-                            <button onclick="clearCart()" class="text-xs text-rose-600 dark:text-rose-400 hover:underline">ล้างตระกร้า</button>
-                        </div>
-                        <div id="cart-items" class="space-y-2.5 overflow-y-auto max-h-[220px] pr-1">
-                            <!-- Dynamic Cart Items -->
-                        </div>
+                <div class="border-t border-amber-100 dark:border-stone-700 pt-3 space-y-3">
+                    <div class="flex justify-between items-center text-base font-bold text-mochi-950 dark:text-amber-100">
+                        <span>ยอดรวมสุทธิ:</span>
+                        <span id="cart-total" class="text-amber-700 dark:text-amber-400 text-2xl font-extrabold">฿0</span>
                     </div>
-
-                    <div class="border-t border-amber-100 dark:border-stone-700 pt-3 space-y-3">
-                        <div class="flex justify-between items-center text-base font-bold text-toast-950 dark:text-amber-100">
-                            <span>ยอดรวมสุทธิ:</span>
-                            <span id="cart-total" class="text-amber-700 dark:text-amber-400 text-2xl font-extrabold">฿0</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
-                                <i class="fa-solid fa-money-bill-wave text-base"></i> เงินสด
-                            </button>
-                            <button onclick="openQRModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
-                                <i class="fa-solid fa-qrcode text-base"></i> PromptPay
-                            </button>
-                            <button onclick="openSplitPaymentModal()" class="bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
-                                <i class="fa-solid fa-arrows-split-up-and-left text-base"></i> จ่ายผสม
-                            </button>
-                        </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                            <i class="fa-solid fa-money-bill-wave text-base"></i> เงินสด
+                        </button>
+                        <button onclick="openQRModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                            <i class="fa-solid fa-qrcode text-base"></i> PromptPay
+                        </button>
+                        <button onclick="openSplitPaymentModal()" class="bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-base"></i> จ่ายผสม
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ROLE 2: 📺 จอโชว์คิวหน้าร้าน -->
+        <!-- ROLE 2: DISPLAY -->
         <section id="role-display" class="hidden space-y-4">
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-6 shadow-sm border border-amber-200 dark:border-stone-700 text-center">
-                <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 mb-1">📺 สถานะคิวรับขนมปังหน้าร้าน (Live Queue Status)</h2>
-                <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับขนมปังอบอุ่นๆ หน้าร้าน</p>
+                <h2 class="text-xl font-bold text-mochi-950 dark:text-amber-200 mb-1">📺 สถานะคิวรับโมจิทอดหน้าร้าน</h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับโมจิทอดร้อนๆ</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-amber-50 dark:bg-stone-900 border-2 border-amber-300 dark:border-amber-600 rounded-2xl p-5 space-y-4">
                         <div class="flex justify-center items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-lg border-b border-amber-200 dark:border-stone-700 pb-2">
-                            <i class="fa-solid fa-fire-burner animate-bounce"></i> กำลังปิ้งอบอยู่บนเตา...
+                            <i class="fa-solid fa-fire animate-bounce"></i> กำลังทอดในกระทะ...
                         </div>
-                        <div id="display-baking-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center">
-                            <!-- Dynamic Baking Queue Tags -->
-                        </div>
+                        <div id="display-baking-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center"></div>
                     </div>
 
                     <div class="bg-emerald-50 dark:bg-stone-900 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-5 space-y-4">
                         <div class="flex justify-center items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-lg border-b border-emerald-200 dark:border-stone-700 pb-2">
-                            <i class="fa-solid fa-bell animate-pulse"></i> ปิ้งเสร็จแล้ว พร้อมรับ! ✨
+                            <i class="fa-solid fa-bell animate-pulse"></i> ทอดเสร็จแล้ว พร้อมเสิร์ฟ! ✨
                         </div>
-                        <div id="display-ready-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center">
-                            <!-- Dynamic Ready Queue Tags -->
-                        </div>
+                        <div id="display-ready-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ROLE 3: 🔥 เตาปิ้ง 3 ขั้นตอน (KITCHEN 3-STAGE PIPELINE) -->
+        <!-- ROLE 3: KITCHEN -->
         <section id="role-kitchen" class="hidden space-y-4">
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
                 <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
                     <div>
-                        <h2 class="text-lg font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
-                            <i class="fa-solid fa-fire-burner text-orange-500"></i> จอคุมเตาปิ้งขนมปัง (Kitchen Display System)
+                        <h2 class="text-lg font-bold text-mochi-950 dark:text-amber-200 flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-orange-500"></i> จอคุมเตาทอดโมจิ (Kitchen Display)
                         </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">ระบบส่งต่อ 3 ขั้นตอน: 1.หม้อทอด (200s) ➔ 2.กระทะ (60s) ➔ 3.แต่งหน้า (5min)</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="openWasteModal()" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-300 dark:border-rose-700 flex items-center gap-1.5">
-                            <i class="fa-solid fa-trash-can text-rose-600"></i> 🗑️ บันทึกขนมปังไหม้/เสีย
-                        </button>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">ขั้นตอน: 1. ทอดลงกระทะ (120s) ➔ 2. ราดซอส/โรยท็อปปิ้ง ➔ 3. เสิร์ฟหน้าร้าน</p>
                     </div>
                 </div>
-
-                <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Dynamic Baking Pipeline Cards -->
-                </div>
+                <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
             </div>
         </section>
 
-        <!-- ROLE 4: 📊 หลังบ้าน (MANAGEMENT, STOCK & EXPENSE TRACKER) -->
+        <!-- ROLE 4: BACKOFFICE & DETAILED ACCOUNTING -->
         <section id="role-backoffice" class="hidden space-y-6">
-            
-            <!-- Management Header -->
-            <div class="flex justify-between items-center">
+            <div class="flex flex-wrap justify-between items-center gap-3">
                 <div>
-                    <h2 class="text-xl font-bold text-toast-950 dark:text-amber-200 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-line text-emerald-600"></i> ระบบบริหารจัดการหลังบ้าน (Back-Office)
+                    <h2 class="text-xl font-bold text-mochi-950 dark:text-amber-200 flex items-center gap-2">
+                        <i class="fa-solid fa-book text-emerald-600"></i> ระบบหลังบ้าน & บัญชีรายรับ-รายจ่ายละเอียด
                     </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">สรุปสต็อก บัญชีรายรับ-รายจ่าย และคำนวณยอดรวมรายจ่ายแยกประเภททุน</p>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">บันทึกค่าใช้จ่ายรายวัน ตรวจสอบกำไรสุทธิ และจัดการสต็อก</p>
                 </div>
-                <button onclick="exportToCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-excel"></i> ส่งออกรายงาน Excel
+                <button onclick="exportAccountingCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel"></i> ดาวน์โหลดบัญชี (Excel / CSV)
                 </button>
             </div>
 
-            <!-- KPI Summary Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ยอดขายรวม (รายรับ)</p>
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รายรับรวมทั้งหมด</p>
                     <p id="kpi-revenue" class="text-xl font-bold text-emerald-600">฿0</p>
                 </div>
                 <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินสดในกล่อง</p>
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รับเงินสด</p>
                     <p id="kpi-cash" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
                 </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">เงินโอน PromptPay</p>
+                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-blue-200 dark:border-stone-700">
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รับโอน PromptPay</p>
                     <p id="kpi-qr" class="text-xl font-bold text-blue-600">฿0</p>
                 </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">ต้นทุนวัตถุดิบ (COGS)</p>
-                    <p id="kpi-cogs" class="text-xl font-bold text-toast-900 dark:text-amber-200">฿0</p>
-                </div>
                 <div class="bg-rose-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900">
-                    <p class="text-[11px] text-rose-700 dark:text-rose-400 mb-1 font-bold">ต้นทุนของเสีย (Waste)</p>
-                    <p id="kpi-waste" class="text-xl font-bold text-rose-600 dark:text-rose-400">฿0</p>
+                    <p class="text-[11px] text-rose-700 dark:text-rose-400 mb-1 font-bold">รายจ่ายรวมทั้งหมด</p>
+                    <p id="kpi-total-expense" class="text-xl font-bold text-rose-600 dark:text-rose-400">฿0</p>
                 </div>
-                <div id="kpi-profit-card" class="bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-700">
-                    <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">กำไรสุทธิ (Profit)</p>
+                <div id="kpi-profit-card" class="col-span-2 sm:col-span-1 bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-300 dark:border-emerald-700">
+                    <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">ยอดคงเหลือสุทธิ (กำไร)</p>
                     <p id="kpi-profit" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">฿0</p>
                 </div>
             </div>
 
-            <!-- Hourly Sales Peak Chart -->
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
-                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-amber-500"></i> สรุปความหนาแน่นช่วงเวลาขายดี (Hourly Sales Traffic Peak)
+            <!-- Expense Entry Form & Stock Control -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- บันทึกรายจ่ายละเอียด -->
+                <div class="lg:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
+                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-2.5">
+                        <i class="fa-solid fa-pen-to-square text-rose-500"></i> คีย์บันทึกรายจ่าย (ซื้อวัตถุดิบ / อุปกรณ์ / ค่าใช้จ่ายอื่นๆ)
                     </h3>
-                    <span class="text-xs text-stone-400">ยอดขายแบ่งตามชั่วโมง (08:00 - 22:00 น.)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">ชื่อรายการที่ซื้อ / จ่าย *</label>
+                            <input type="text" id="exp-title" placeholder="เช่น ซื้อแป้งโมจิ 5 กก., ซื้อซอสเฮอร์ชีส์, ค่าถุง" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">จำนวนเงิน (บาท) *</label>
+                                <input type="number" id="exp-amount" min="1" placeholder="0" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">หมวดหมู่รายจ่าย</label>
+                                <select id="exp-category" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                    <option value="วัตถุดิบ">🍡 วัตถุดิบ</option>
+                                    <option value="บรรจุภัณฑ์">🛍️ ถุง/กล่อง/ไม้จิ้ม</option>
+                                    <option value="ค่าเช่า/ค่าไฟ">⚡ ค่าที่/แก๊ส/ไฟ</option>
+                                    <option value="อุปกรณ์/อื่นๆ">🛠️ อุปกรณ์/อื่นๆ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+                            <input type="text" id="exp-note" placeholder="เช่น ซื้อจากแม็คโคร, จ่ายเงินสดหน้าร้าน" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <button type="button" onclick="addExpenseManual()" class="w-full sm:w-auto px-6 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-sm active:scale-95">
+                        + บันทึกรายจ่ายลงบัญชี
+                    </button>
                 </div>
 
-                <div id="hourly-chart-container" class="flex items-end justify-between gap-2 h-44 pt-6 px-2 overflow-x-auto">
-                    <!-- Dynamic Bars -->
+                <!-- จัดการสต็อกโมจิ -->
+                <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-3">
+                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-2.5">
+                        <i class="fa-solid fa-boxes-stacked text-amber-600"></i> สต็อกโมจิทอดคงเหลือ
+                    </h3>
+                    <div id="stock-list-container" class="space-y-2.5"></div>
                 </div>
             </div>
 
-            <!-- Stock Table & Expense Form Section -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Stock Table -->
-                <div class="md:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-boxes-stacked text-amber-600"></i> จัดการสต็อกขนมปัง
-                        </h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-amber-100 dark:border-stone-700 text-toast-900 dark:text-amber-300 bg-amber-50/50 dark:bg-stone-900 text-xs">
-                                    <th class="py-2.5 px-3">ชื่อเมนู</th>
-                                    <th class="py-2.5 px-3">ราคา</th>
-                                    <th class="py-2.5 px-3 text-center">คงเหลือ</th>
-                                    <th class="py-2.5 px-3 text-center">สถานะ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stock-table-body" class="divide-y divide-amber-100 dark:divide-stone-700 text-xs">
-                                <!-- Dynamic Stock Rows -->
-                            </tbody>
-                        </table>
+            <!-- ตารางบัญชีรายรับ-รายจ่ายแบบละเอียด (Unified Ledger) -->
+            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-3">
+                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-600"></i> สมุดบัญชีรายรับ - รายจ่ายละเอียด (เรียงตามเวลาล่าสุด)
+                    </h3>
+                    <div class="flex gap-1.5 text-xs">
+                        <button onclick="filterLedger('all')" id="filter-all" class="px-3 py-1 rounded-lg bg-mochi-900 text-white font-bold">ทั้งหมด</button>
+                        <button onclick="filterLedger('income')" id="filter-income" class="px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200">เฉพาะรายรับ</button>
+                        <button onclick="filterLedger('expense')" id="filter-expense" class="px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200">เฉพาะรายจ่าย</button>
                     </div>
                 </div>
 
-                <!-- 🧾 Expense Form (แก้ไขการบันทึก + เด้งรายการประวัติทันที) -->
-                <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                    <h3 class="font-bold text-toast-950 dark:text-amber-200 text-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-receipt text-rose-500"></i> บันทึกรายจ่ายเพิ่มเติม
-                    </h3>
-                    <div class="space-y-3">
-                        <div>
-                            <input type="text" id="exp-title" placeholder="รายการ (เช่น ค่าเช่าบูธ, ค่าถุง, ซื้อเนยเพิ่ม)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <input type="number" id="exp-amount" min="1" placeholder="จำนวนเงิน (บาท)" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">เลือกประเภททุน:</label>
-                            <select id="exp-type" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                                <option value="material">🍞 ทุนวัตถุดิบ (เนย, ขนมปัง, ท็อปปิ้ง)</option>
-                                <option value="equipment">🛠️ ทุนอุปกรณ์ / ค่าเช่าบูธ / ถุง</option>
-                            </select>
-                        </div>
-                        <button type="button" onclick="addExpenseManual()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-sm active:scale-95">
-                            + บันทึกรายจ่าย
-                        </button>
-                    </div>
-
-                    <!-- สรุปยอดรวมรายจ่าย + แสดงประวัติรายการทันที -->
-                    <div class="border-t border-stone-100 dark:border-stone-700 pt-3 space-y-2">
-                        <div class="bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900 flex justify-between items-center">
-                            <span class="text-xs font-bold text-rose-800 dark:text-rose-300">ยอดรวมรายจ่ายบันทึกแล้ว:</span>
-                            <span id="total-expense-summary-tag" class="text-base font-black text-rose-600 dark:text-rose-400">฿0</span>
-                        </div>
-
-                        <h4 class="text-[11px] font-bold text-stone-600 dark:text-stone-400 pt-1">ประวัติรายการที่บันทึกแล้ว:</h4>
-                        <div id="expense-list" class="space-y-1.5 max-h-[140px] overflow-y-auto text-xs pr-1">
-                            <!-- Dynamic Expenses List -->
-                        </div>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-amber-100 dark:border-stone-700 text-mochi-900 dark:text-amber-300 bg-amber-50/60 dark:bg-stone-900 text-xs">
+                                <th class="py-2.5 px-3">วันที่ / เวลา</th>
+                                <th class="py-2.5 px-3">ประเภท</th>
+                                <th class="py-2.5 px-3">หมวดหมู่</th>
+                                <th class="py-2.5 px-3">รายละเอียดรายการ</th>
+                                <th class="py-2.5 px-3">หมายเหตุ / ช่องทาง</th>
+                                <th class="py-2.5 px-3 text-right">จำนวนเงิน</th>
+                                <th class="py-2.5 px-3 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body" class="divide-y divide-amber-100 dark:divide-stone-700 text-xs"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- WASTE TRACKER MODAL -->
-    <div id="waste-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-rose-700 dark:text-rose-400 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-trash-can"></i> บันทึกขนมปังไหม้ / เสียหาย
-                </h3>
-                <button onclick="closeWasteModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">เลือกเมนูที่เสีย:</label>
-                    <select id="waste-product-select" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
-                        <!-- Dynamic Products -->
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">จำนวนที่เสีย (ชิ้น):</label>
-                    <input type="number" id="waste-qty-input" min="1" value="1" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block font-bold text-stone-700 dark:text-stone-300 mb-1">สาเหตุความเสียหาย:</label>
-                    <select id="waste-reason-select" class="w-full p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
-                        <option value="ปิ้งไหม้">ปิ้งไหม้บนเตา</option>
-                        <option value="ตกพื้น">ตกพื้น / สกปรก</option>
-                        <option value="ทาหน้าผิด">ทาซอส/ท็อปปิ้งผิดหน้า</option>
-                    </select>
-                </div>
-            </div>
-
-            <button onclick="confirmWasteLog()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-md">
-                บันทึกตัดสต็อกของเสีย
-            </button>
-        </div>
-    </div>
-
-    <!-- OPTION SELECTION MODAL -->
+    <!-- OPTION MODAL -->
     <div id="option-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-md w-full p-5 shadow-xl space-y-4">
             <div class="flex justify-between items-start border-b border-amber-100 dark:border-stone-700 pb-3">
                 <div>
-                    <h3 id="modal-product-name" class="font-bold text-toast-950 dark:text-amber-100 text-lg">ชื่อเมนู</h3>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">เลือกท็อปปิ้งได้หลายรายการ</p>
+                    <h3 id="modal-product-name" class="font-bold text-mochi-950 dark:text-amber-100 text-lg">ชื่อเมนู</h3>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">เลือกออปชั่นเสริมได้หลายรายการ (หรือไม่เลือกก็ได้)</p>
                 </div>
-                <button onclick="closeOptionModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <button onclick="closeOptionModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
-            <div id="modal-options-list" class="space-y-2 max-h-[280px] overflow-y-auto">
-                <!-- Checkboxes -->
-            </div>
-
+            <div id="modal-options-list" class="space-y-2"></div>
             <div class="border-t border-amber-100 dark:border-stone-700 pt-3 flex justify-between items-center">
                 <div>
-                    <span class="text-xs text-stone-500 dark:text-stone-400">ราคารวมต่อชิ้น:</span>
+                    <span class="text-xs text-stone-500 dark:text-stone-400">ราคารวมต่อชุด:</span>
                     <p id="modal-total-price" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
                 </div>
-                <button onclick="confirmAddToCart()" class="bg-amber-700 hover:bg-amber-800 active:scale-95 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm">
-                    เพิ่มลงตระกร้า
-                </button>
+                <button onclick="confirmAddToCart()" class="bg-amber-700 hover:bg-amber-800 active:scale-95 text-white font-bold px-6 py-2.5 rounded-xl transition text-sm">เพิ่มลงตะกร้า</button>
             </div>
         </div>
     </div>
 
-    <!-- TOUCH NUMPAD CASH MODAL -->
+    <!-- CASH MODAL -->
     <div id="cash-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
             <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base">💵 ชำระเงินสด / ทอนเงิน</h3>
-                <button onclick="closeCashModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base">💵 ชำระเงินสด / ทอนเงิน</h3>
+                <button onclick="closeCashModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
             <div class="space-y-2 text-center">
                 <div class="flex justify-between text-xs text-stone-600 dark:text-stone-400 px-1">
                     <span>ยอดชำระเงินสด: <b id="cash-modal-total" class="text-amber-800 dark:text-amber-400 text-sm">฿0</b></span>
                     <span>รับเงินมา: <b id="numpad-display" class="text-blue-600 dark:text-blue-400 text-sm">฿0</b></span>
                 </div>
-                
                 <div class="bg-amber-50 dark:bg-stone-900 p-2.5 rounded-xl border border-amber-200 dark:border-stone-700">
-                    <span class="text-[11px] text-toast-800 dark:text-amber-300 font-medium">เงินทอนที่ต้องคืนลูกค้า:</span>
+                    <span class="text-[11px] text-mochi-800 dark:text-amber-300 font-medium">เงินทอนที่ต้องคืนลูกค้า:</span>
                     <p id="cash-change-display" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">฿0</p>
                 </div>
-
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
-                    <button onclick="pressNumpad('exact')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-toast-950 dark:text-white text-xs py-2 rounded-lg font-bold">พอดี</button>
+                    <button onclick="pressNumpad('exact')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-mochi-950 dark:text-white text-xs py-2 rounded-lg font-bold">พอดี</button>
                     <button onclick="pressNumpad('add50')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+50</button>
                     <button onclick="pressNumpad('add100')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+100</button>
                     <button onclick="pressNumpad('add500')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+500</button>
                 </div>
-
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
-                    <button onclick="pressNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">1</button>
-                    <button onclick="pressNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">2</button>
-                    <button onclick="pressNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">3</button>
-                    <button onclick="pressNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">4</button>
-                    <button onclick="pressNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">5</button>
-                    <button onclick="pressNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">6</button>
-                    <button onclick="pressNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">7</button>
-                    <button onclick="pressNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">8</button>
-                    <button onclick="pressNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">9</button>
-                    
+                    <button onclick="pressNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">1</button>
+                    <button onclick="pressNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">2</button>
+                    <button onclick="pressNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">3</button>
+                    <button onclick="pressNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">4</button>
+                    <button onclick="pressNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">5</button>
+                    <button onclick="pressNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">6</button>
+                    <button onclick="pressNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">7</button>
+                    <button onclick="pressNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">8</button>
+                    <button onclick="pressNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">9</button>
                     <button onclick="pressNumpad('C')" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-bold py-3 rounded-xl text-base">C</button>
-                    <button onclick="pressNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">0</button>
-                    <button onclick="pressNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 font-bold py-3 rounded-xl text-base">
-                        <i class="fa-solid fa-delete-left"></i>
-                    </button>
+                    <button onclick="pressNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">0</button>
+                    <button onclick="pressNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 font-bold py-3 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
                 </div>
             </div>
-
-            <button onclick="confirmCashSale()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition text-sm">
-                ยืนยันการรับเงิน
-            </button>
+            <button onclick="confirmCashSale()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition text-sm">ยืนยันการรับเงิน</button>
         </div>
     </div>
 
@@ -484,24 +346,17 @@
     <div id="qr-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
             <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base">📱 สแกนจ่าย PromptPay</h3>
-                <button onclick="closeQRModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base">📱 สแกนจ่าย PromptPay</h3>
+                <button onclick="closeQRModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
             <div class="space-y-1">
                 <p class="text-xs text-stone-500 dark:text-stone-400">ยอดสแกนชำระเงิน</p>
                 <p id="qr-modal-total" class="text-3xl font-bold text-blue-600 dark:text-blue-400">฿0</p>
             </div>
-
             <div class="flex justify-center py-1">
                 <img id="qr-image" src="" alt="PromptPay QR Code" class="w-52 h-52 border border-stone-200 dark:border-stone-700 rounded-xl shadow-inner">
             </div>
-
-            <button onclick="confirmQRSale()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition text-sm">
-                ยืนยันได้รับเงินแล้ว
-            </button>
+            <button onclick="confirmQRSale()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-sm">ยืนยันได้รับเงินแล้ว</button>
         </div>
     </div>
 
@@ -509,492 +364,340 @@
     <div id="split-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-3">
             <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-arrows-split-up-and-left text-purple-600"></i> ชำระเงินแบบจ่ายผสม
-                </h3>
-                <button onclick="closeSplitModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base flex items-center gap-2"><i class="fa-solid fa-arrows-split-up-and-left text-purple-600"></i> ชำระเงินแบบจ่ายผสม</h3>
+                <button onclick="closeSplitModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-
             <div class="space-y-2 text-center">
                 <div class="bg-purple-50 dark:bg-stone-900 p-2 rounded-xl border border-purple-200 dark:border-stone-700">
                     <span class="text-xs text-purple-800 dark:text-purple-300 font-medium">ยอดรวมทั้งสิ้น:</span>
                     <p id="split-modal-total" class="text-2xl font-black text-purple-900 dark:text-purple-300">฿0</p>
                 </div>
-
                 <div class="flex justify-between items-center text-xs text-stone-600 dark:text-stone-400 px-1 pt-1">
                     <span>1. ยอดสแกนโอน: <b id="split-numpad-display" class="text-purple-700 dark:text-purple-400 text-sm">฿0</b></span>
                     <span>2. ยอดเงินสดคงเหลือ: <b id="split-cash-show" class="text-emerald-600 dark:text-emerald-400 text-sm">฿0</b></span>
                 </div>
-
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
                     <button onclick="pressSplitNumpad('add20')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+20</button>
                     <button onclick="pressSplitNumpad('add50')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+50</button>
                     <button onclick="pressSplitNumpad('add100')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+100</button>
-                    <button onclick="pressSplitNumpad('half')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-toast-950 dark:text-amber-200 text-xs py-1.5 rounded-lg font-bold">ครึ่งนึง</button>
+                    <button onclick="pressSplitNumpad('half')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-mochi-950 dark:text-amber-200 text-xs py-1.5 rounded-lg font-bold">ครึ่งนึง</button>
                 </div>
-
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
-                    <button onclick="pressSplitNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">1</button>
-                    <button onclick="pressSplitNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">2</button>
-                    <button onclick="pressSplitNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">3</button>
-                    <button onclick="pressSplitNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">4</button>
-                    <button onclick="pressSplitNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">5</button>
-                    <button onclick="pressSplitNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">6</button>
-                    <button onclick="pressSplitNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">7</button>
-                    <button onclick="pressSplitNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">8</button>
-                    <button onclick="pressSplitNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">9</button>
-                    
+                    <button onclick="pressSplitNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">1</button>
+                    <button onclick="pressSplitNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">2</button>
+                    <button onclick="pressSplitNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">3</button>
+                    <button onclick="pressSplitNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">4</button>
+                    <button onclick="pressSplitNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">5</button>
+                    <button onclick="pressSplitNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">6</button>
+                    <button onclick="pressSplitNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">7</button>
+                    <button onclick="pressSplitNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">8</button>
+                    <button onclick="pressSplitNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">9</button>
                     <button onclick="pressSplitNumpad('C')" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-bold py-2.5 rounded-xl text-base">C</button>
-                    <button onclick="pressSplitNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">0</button>
-                    <button onclick="pressSplitNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-toast-900 dark:text-amber-200 font-bold py-2.5 rounded-xl text-base">
-                        <i class="fa-solid fa-delete-left"></i>
-                    </button>
+                    <button onclick="pressSplitNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">0</button>
+                    <button onclick="pressSplitNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-mochi-900 dark:text-amber-200 font-bold py-2.5 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
                 </div>
             </div>
-
-            <button onclick="proceedSplitQRStep()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">
-                ถัดไป ➔ สแกนโอน QR
-            </button>
+            <button onclick="proceedSplitQRStep()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">ถัดไป ➔ สแกนโอน QR</button>
         </div>
     </div>
 
-    <!-- GACHA MYSTERY WHEEL MODAL -->
-    <div id="gacha-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-toast-950 dark:text-amber-100 text-base">🎰 สุ่มดวงขนมปัง (฿30)</h3>
-                <button onclick="closeGachaModal()" class="text-stone-400 hover:text-stone-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
+    <!-- FIREBASE SDK & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getFirestore, collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-            <div id="gacha-display" class="py-2 space-y-3">
-                <div class="relative w-56 h-56 mx-auto flex items-center justify-center">
-                    <div class="absolute -top-2 z-10 text-rose-600 text-3xl drop-shadow">
-                        <i class="fa-solid fa-location-pin fa-rotate-180"></i>
-                    </div>
-                    <canvas id="gacha-wheel-canvas" width="220" height="220" class="rounded-full shadow-md border-4 border-amber-400"></canvas>
-                </div>
-                <p id="gacha-status-text" class="text-xs text-stone-500 dark:text-stone-400 font-medium">กดหมุนวงล้อเพื่อสุ่มขนมปัง + ท็อปปิ้งพิเศษในราคาคุ้ม ฿30</p>
-            </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9x7bfc54nWnvJiWS3IlKowGRdkuCtaPM",
+            authDomain: "bakery-pos-f8fa9.firebaseapp.com",
+            projectId: "bakery-pos-f8fa9",
+            storageBucket: "bakery-pos-f8fa9.firebasestorage.app",
+            messagingSenderId: "896076016191",
+            appId: "1:896076016191:web:e78cb07c9907f6ddfd268a",
+            measurementId: "G-ET7GWKZ53E"
+        };
 
-            <button onclick="spinGachaWheel()" id="btn-spin-gacha" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">
-                หมุนวงล้อสุ่มดวงเลย!
-            </button>
-        </div>
-    </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
         const PROMPTPAY_NUMBER = '0812345678'; 
 
-        const DEFAULT_PRODUCTS = [
-            { id: 'p1', name: 'ขนมปังเนย', basePrice: 20, baseCost: 16, stock: 40, icon: 'fa-bread-slice', color: 'bg-amber-100 text-amber-800', bakeTimeSec: 90, options: [{ id: 'opt_sugar', name: 'โรยน้ำตาล', priceAdd: 0, costAdd: 0 }, { id: 'opt_condensed', name: 'ราดนมข้นหวาน', priceAdd: 0, costAdd: 0 }] },
-            { id: 'p2', name: 'ขนมปังกระเทียม', basePrice: 25, baseCost: 19, stock: 35, icon: 'fa-wheat-awn', color: 'bg-yellow-100 text-yellow-800', bakeTimeSec: 90, options: [] },
-            { id: 'p3', name: 'ขนมปังราดช็อกโกแลตเฮเซลนัท', basePrice: 25, baseCost: 13, stock: 30, icon: 'fa-cookie', color: 'bg-stone-200 text-stone-800', bakeTimeSec: 120, options: [{ id: 'opt_milo', name: '+ ผงไมโล', priceAdd: 5, costAdd: 1 }, { id: 'opt_oreo', name: '+ โอริโอ้', priceAdd: 5, costAdd: 5 }, { id: 'opt_banana', name: '+ กล้วยหอม', priceAdd: 10, costAdd: 7 }] },
-            { id: 'p4', name: 'ขนมปังนมนัว', basePrice: 25, baseCost: 20, stock: 30, icon: 'fa-glass-water', color: 'bg-orange-100 text-orange-800', bakeTimeSec: 120, options: [{ id: 'opt_milo', name: '+ ผงไมโล', priceAdd: 5, costAdd: 1 }, { id: 'opt_oreo', name: '+ โอริโอ้', priceAdd: 5, costAdd: 5 }] }
+        // ออปชั่นเสริม 4 รายการตามโจทย์
+        const MOCHI_OPTIONS = [
+            { id: 'opt_hershey', name: 'ราดซอสช็อกโกแลตเฮอร์ชีส์นัท', priceAdd: 5 },
+            { id: 'opt_oreo', name: 'โอริโอ้', priceAdd: 5 },
+            { id: 'opt_milo', name: 'ผงไมโล', priceAdd: 5 },
+            { id: 'opt_banana', name: 'กล้วย', priceAdd: 10 }
         ];
 
-        let products = JSON.parse(localStorage.getItem('bakery_products')) || DEFAULT_PRODUCTS;
-        let salesHistory = JSON.parse(localStorage.getItem('bakery_sales')) || [];
-        let expenses = JSON.parse(localStorage.getItem('bakery_expenses')) || [];
-        let wasteHistory = JSON.parse(localStorage.getItem('bakery_waste')) || [];
-        let currentQueue = parseInt(localStorage.getItem('bakery_queue')) || 1;
-        let bakingOrders = JSON.parse(localStorage.getItem('bakery_baking_orders')) || [];
+        // เมนูหลัก: โมจิทอด ไซส์เล็ก (25) และ ไซส์ใหญ่ (35)
+        const DEFAULT_PRODUCTS = [
+            { id: 'm_small', name: 'โมจิทอด (ไซส์เล็ก)', basePrice: 25, stock: 50, badge: 'S', color: 'bg-amber-100 text-amber-800', options: MOCHI_OPTIONS },
+            { id: 'm_large', name: 'โมจิทอด (ไซส์ใหญ่)', basePrice: 35, stock: 50, badge: 'L', color: 'bg-orange-100 text-orange-800', options: MOCHI_OPTIONS }
+        ];
 
-        let cart = [];
-        let activeModalProduct = null;
-        let selectedOptions = [];
-        let numpadAmountStr = "0";
+        window.products = [];
+        window.salesHistory = [];
+        window.expenses = [];
+        window.bakingOrders = [];
+        window.currentQueue = 1;
+        window.ledgerFilter = 'all';
 
-        // States
-        let isTurboMode = false;
-        let isDarkMode = false;
-        let isSplitPaymentActive = false;
-        let splitNumpadStr = "0";
-        let splitQRPart = 0;
-        let splitCashPart = 0;
-        let isSpinningGacha = false;
-        let currentWheelRotation = 0;
+        window.cart = [];
+        window.activeModalProduct = null;
+        window.selectedOptions = [];
+        window.numpadAmountStr = "0";
+        window.isDarkMode = false;
+        window.isSplitPaymentActive = false;
+        window.splitNumpadStr = "0";
+        window.splitQRPart = 0;
+        window.splitCashPart = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             const currentHour = new Date().getHours();
-            if (currentHour >= 18 || currentHour < 6) {
-                setDarkMode(true);
-            }
+            if (currentHour >= 18 || currentHour < 6) setDarkMode(true);
 
-            renderProducts();
-            renderCart();
-            renderStock();
-            renderFinance();
-            updateQueueDisplay();
-            updateTopRanking();
-            renderKitchenMonitor();
-            renderVisualQueueDisplay();
-            updateEstimatedWaitTime();
-            drawGachaWheel();
-
-            setInterval(updateKitchenTimers, 1000);
-        });
-
-        function saveData() {
-            localStorage.setItem('bakery_products', JSON.stringify(products));
-            localStorage.setItem('bakery_sales', JSON.stringify(salesHistory));
-            localStorage.setItem('bakery_expenses', JSON.stringify(expenses));
-            localStorage.setItem('bakery_waste', JSON.stringify(wasteHistory));
-            localStorage.setItem('bakery_queue', currentQueue.toString());
-            localStorage.setItem('bakery_baking_orders', JSON.stringify(bakingOrders));
-        }
-
-        function resetSystemData() {
-            if (confirm('ต้องการรีเซ็ตข้อมูลทั้งหมดเป็นค่าเริ่มต้นใช่หรือไม่?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function switchRole(roleId) {
-            ['pos', 'display', 'kitchen', 'backoffice'].forEach(r => {
-                const sec = document.getElementById(`role-${r}`);
-                if (sec) sec.classList.add('hidden');
-                
-                const tab = document.getElementById(`tab-${r}`);
-                if (tab) {
-                    tab.classList.remove('border-amber-400', 'text-amber-300', 'font-bold');
-                    tab.classList.add('border-transparent', 'text-amber-200/70', 'font-medium');
+            // 1. Sync Products (แยก collection เป็น mochi_products)
+            onSnapshot(collection(db, "mochi_products"), async (snapshot) => {
+                if (snapshot.empty) {
+                    for (const p of DEFAULT_PRODUCTS) {
+                        await setDoc(doc(db, "mochi_products", p.id), p);
+                    }
+                } else {
+                    window.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    window.products.sort((a, b) => a.basePrice - b.basePrice);
+                    renderProducts();
+                    renderStock();
                 }
             });
 
-            const activeSec = document.getElementById(`role-${roleId}`);
-            if (activeSec) activeSec.classList.remove('hidden');
+            // 2. Sync Sales
+            onSnapshot(collection(db, "mochi_sales"), (snapshot) => {
+                window.salesHistory = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAccounting();
+            });
 
+            // 3. Sync Expenses
+            onSnapshot(collection(db, "mochi_expenses"), (snapshot) => {
+                window.expenses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAccounting();
+            });
+
+            // 4. Sync Kitchen Orders
+            onSnapshot(collection(db, "mochi_bakingOrders"), (snapshot) => {
+                window.bakingOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderKitchenMonitor();
+                renderVisualQueueDisplay();
+            });
+
+            // 5. Sync Queue Counter
+            onSnapshot(doc(db, "mochi_settings", "queue"), (docSnap) => {
+                if (docSnap.exists()) {
+                    window.currentQueue = docSnap.data().value || 1;
+                } else {
+                    setDoc(doc(db, "mochi_settings", "queue"), { value: 1 });
+                }
+                document.getElementById('next-queue-tag').innerText = `คิวถัดไป: #${window.currentQueue}`;
+            });
+
+            setInterval(() => {
+                renderKitchenMonitor();
+                renderVisualQueueDisplay();
+            }, 1000);
+        });
+
+        window.switchRole = function(roleId) {
+            ['pos', 'display', 'kitchen', 'backoffice'].forEach(r => {
+                document.getElementById(`role-${r}`).classList.add('hidden');
+                const tab = document.getElementById(`tab-${r}`);
+                tab.classList.remove('border-amber-400', 'text-amber-300', 'font-bold');
+                tab.classList.add('border-transparent', 'text-amber-200/70', 'font-medium');
+            });
+
+            document.getElementById(`role-${roleId}`).classList.remove('hidden');
             const activeTab = document.getElementById(`tab-${roleId}`);
-            if (activeTab) {
-                activeTab.classList.remove('border-transparent', 'text-amber-200/70', 'font-medium');
-                activeTab.classList.add('border-amber-400', 'text-amber-300', 'font-bold');
-            }
+            activeTab.classList.remove('border-transparent', 'text-amber-200/70', 'font-medium');
+            activeTab.classList.add('border-amber-400', 'text-amber-300', 'font-bold');
 
-            const titleTag = document.getElementById('role-title-tag');
-            if (roleId === 'pos') titleTag.innerText = 'โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)';
-            if (roleId === 'display') titleTag.innerText = 'โหมด: 📺 จอโชว์คิวหน้าร้าน';
-            if (roleId === 'kitchen') titleTag.innerText = 'โหมด: 🔥 เตาปิ้ง (Kitchen Display)';
-            if (roleId === 'backoffice') titleTag.innerText = 'โหมด: 📊 หลังบ้าน (สต็อก & บัญชี)';
+            const titles = {
+                pos: 'โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)',
+                display: 'โหมด: 📺 จอโชว์คิวหน้าร้าน',
+                kitchen: 'โหมด: 🔥 เตาทอด (Kitchen)',
+                backoffice: 'โหมด: 📊 หลังบ้าน (สต็อก & บัญชี)'
+            };
+            document.getElementById('role-title-tag').innerText = titles[roleId];
 
             if (roleId === 'display') renderVisualQueueDisplay();
-            if (roleId === 'backoffice') { renderStock(); renderFinance(); }
             if (roleId === 'kitchen') renderKitchenMonitor();
-        }
+            if (roleId === 'backoffice') { renderStock(); renderAccounting(); }
+        };
 
-        function updateQueueDisplay() {
-            document.getElementById('next-queue-tag').innerText = `คิวถัดไป: #${currentQueue}`;
-        }
-
-        function toggleDarkMode() {
-            setDarkMode(!isDarkMode);
-        }
-
+        window.toggleDarkMode = function() { setDarkMode(!window.isDarkMode); };
         function setDarkMode(enable) {
-            isDarkMode = enable;
-            const body = document.body;
-            const btn = document.getElementById('btn-dark');
-            if (isDarkMode) {
-                body.classList.add('dark');
-                btn.innerHTML = `<i class="fa-solid fa-sun text-yellow-400"></i>`;
-            } else {
-                body.classList.remove('dark');
-                btn.innerHTML = `<i class="fa-solid fa-moon text-amber-300"></i>`;
-            }
-        }
-
-        function toggleTurboMode() {
-            isTurboMode = !isTurboMode;
-            const btn = document.getElementById('btn-turbo');
-            const subInfo = document.getElementById('sub-info-tag');
-
-            if (isTurboMode) {
-                btn.className = "text-xs bg-amber-400 text-toast-950 font-black px-3 py-1.5 rounded-lg transition animate-pulse";
-                if(subInfo) subInfo.classList.add('hidden');
-            } else {
-                btn.className = "text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-bold px-3 py-1.5 rounded-lg border border-amber-400/30 transition flex items-center gap-1.5";
-                if(subInfo) subInfo.classList.remove('hidden');
-            }
-            renderProducts();
-        }
-
-        function updateEstimatedWaitTime() {
-            const activeBakingOrders = bakingOrders.filter(o => o.status !== 'Done');
-            const totalPendingQueues = activeBakingOrders.length;
-
-            let totalWaitSeconds = 0;
-            activeBakingOrders.forEach(order => {
-                const elapsedSec = Math.floor((Date.now() - (order.stageStartTime || order.startTime)) / 1000);
-                const totalBakeSec = 200 + 60 + 300;
-                totalWaitSeconds += Math.max(0, totalBakeSec - elapsedSec);
-            });
-
-            const estMinutes = Math.ceil(totalWaitSeconds / 60);
-            const displayEl = document.getElementById('wait-time-display');
-
-            if (totalPendingQueues === 0) {
-                displayEl.innerText = '~0 นาที (ไม่มีคิวก่อนหน้า)';
-                displayEl.className = "font-bold text-emerald-600 dark:text-emerald-400 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-emerald-200 dark:border-stone-700";
-            } else {
-                displayEl.innerText = `~${estMinutes} นาที (${totalPendingQueues} คิวก่อนหน้า)`;
-                displayEl.className = estMinutes > 15 
-                    ? "font-black text-rose-600 dark:text-rose-400 text-sm bg-rose-50 dark:bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-300 dark:border-rose-800 animate-pulse" 
-                    : "font-black text-amber-800 dark:text-amber-300 text-sm bg-white dark:bg-stone-900 px-3 py-1 rounded-xl border border-amber-200 dark:border-stone-700";
-            }
-        }
-
-        function updateTopRanking() {
-            const counts = {};
-            salesHistory.forEach(sale => {
-                sale.items.forEach(item => {
-                    counts[item.name] = (counts[item.name] || 0) + item.qty;
-                });
-            });
-
-            const sorted = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
-            const display = document.getElementById('top-rank-display');
-            if (sorted.length > 0) {
-                display.innerText = `🥇 1. ${sorted[0]} (${counts[sorted[0]]} ชิ้น)`;
-            } else {
-                display.innerText = 'รอสรุปยอดออเดอร์แรก...';
-            }
+            window.isDarkMode = enable;
+            document.body.classList.toggle('dark', enable);
+            document.getElementById('btn-dark').innerHTML = enable 
+                ? `<i class="fa-solid fa-sun text-yellow-400"></i>` 
+                : `<i class="fa-solid fa-moon text-amber-300"></i>`;
         }
 
         function renderProducts() {
             const grid = document.getElementById('product-grid');
-            grid.className = isTurboMode ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-4";
-
-            grid.innerHTML = products.map(p => {
-                const optText = p.options.length > 0 ? `ท็อปปิ้ง: ${p.options.map(o => o.name).join(', ')}` : 'ไม่มีท็อปปิ้ง';
-                
-                return `
-                    <div onclick="handleSelectProduct('${p.id}')" 
-                        class="bg-white dark:bg-stone-800 rounded-3xl p-5 shadow-sm border-2 ${p.stock > 0 ? 'border-amber-400/90 dark:border-amber-500/60 hover:border-amber-500' : 'border-stone-200 opacity-50'} cursor-pointer active:scale-95 transition flex flex-col justify-between min-h-[140px] relative overflow-hidden">
-                        
+            grid.innerHTML = window.products.map(p => `
+                <div onclick="openOptionModal('${p.id}')" class="bg-white dark:bg-stone-800 rounded-3xl p-6 shadow-sm border-2 ${p.stock > 0 ? 'border-amber-400/90 dark:border-amber-500/60 hover:border-amber-500' : 'border-stone-200 opacity-50'} cursor-pointer active:scale-95 transition flex flex-col justify-between min-h-[160px]">
+                    <div class="flex justify-between items-start">
                         <div>
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-bold text-toast-950 dark:text-stone-100 text-lg leading-snug">${p.name}</h3>
-                                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">${optText}</p>
-                                </div>
-                                <div class="w-8 h-8 rounded-full ${p.color} flex items-center justify-center text-sm shrink-0">
-                                    <i class="fa-solid ${p.icon}"></i>
-                                </div>
-                            </div>
+                            <h3 class="font-bold text-mochi-950 dark:text-stone-100 text-xl leading-snug">${p.name}</h3>
+                            <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">เลือกเพิ่ม: ซอสช็อกโกแลต / โอริโอ้ / ไมโล / กล้วย</p>
                         </div>
-
-                        <div class="flex justify-between items-end border-t border-amber-100/60 dark:border-stone-700/60 pt-3 mt-3">
-                            <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
-                                เหลือ ${p.stock} ชิ้น
-                            </span>
-                            <span class="text-2xl font-black text-amber-700 dark:text-amber-400 leading-none">
-                                ฿${p.basePrice}
-                            </span>
+                        <div class="w-10 h-10 rounded-full ${p.color} flex items-center justify-center font-black text-base shrink-0">
+                            ${p.badge}
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="flex justify-between items-end border-t border-amber-100/60 dark:border-stone-700/60 pt-3 mt-4">
+                        <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">คงเหลือ ${p.stock} ชุด</span>
+                        <span class="text-3xl font-black text-amber-700 dark:text-amber-400 leading-none">฿${p.basePrice}</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function handleSelectProduct(productId) {
-            const product = products.find(p => p.id === productId);
+        window.openOptionModal = function(productId) {
+            const product = window.products.find(p => p.id === productId);
             if (!product || product.stock <= 0) return;
 
-            if (product.options.length === 0 || isTurboMode) {
-                addToCart(product, []);
-            } else {
-                openOptionModal(product);
-            }
-        }
-
-        function openOptionModal(product) {
-            activeModalProduct = product;
-            selectedOptions = [];
-
+            window.activeModalProduct = product;
+            window.selectedOptions = [];
             document.getElementById('modal-product-name').innerText = product.name;
-            const optionsContainer = document.getElementById('modal-options-list');
             
-            optionsContainer.innerHTML = product.options.map(opt => `
-                <label onclick="toggleOption('${opt.id}')" class="flex items-center justify-between p-3 rounded-xl border border-amber-200 dark:border-stone-700 cursor-pointer hover:bg-amber-50 dark:hover:bg-stone-700 transition">
-                    <div class="flex items-center gap-2">
+            document.getElementById('modal-options-list').innerHTML = product.options.map(opt => `
+                <label onclick="toggleOption('${opt.id}')" class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 dark:border-stone-700 cursor-pointer hover:bg-amber-50 dark:hover:bg-stone-700 transition">
+                    <div class="flex items-center gap-2.5">
                         <input type="checkbox" id="chk_${opt.id}" class="w-4 h-4 accent-amber-700">
                         <span class="text-sm font-medium text-stone-800 dark:text-stone-200">${opt.name}</span>
                     </div>
-                    <span class="text-xs font-semibold text-amber-800 dark:text-amber-400">
-                        ${opt.priceAdd > 0 ? `+฿${opt.priceAdd}` : 'ฟรี'}
-                    </span>
+                    <span class="text-xs font-bold text-amber-800 dark:text-amber-400">+฿${opt.priceAdd}</span>
                 </label>
             `).join('');
 
             updateModalPrice();
             document.getElementById('option-modal').classList.remove('hidden');
-        }
+        };
 
-        function toggleOption(optId) {
-            const opt = activeModalProduct.options.find(o => o.id === optId);
-            const index = selectedOptions.findIndex(o => o.id === optId);
-            
-            if (index > -1) {
-                selectedOptions.splice(index, 1);
-            } else {
-                selectedOptions.push(opt);
-            }
+        window.toggleOption = function(optId) {
+            const opt = window.activeModalProduct.options.find(o => o.id === optId);
+            const idx = window.selectedOptions.findIndex(o => o.id === optId);
+            if (idx > -1) window.selectedOptions.splice(idx, 1);
+            else window.selectedOptions.push(opt);
             updateModalPrice();
-        }
+        };
 
         function updateModalPrice() {
-            if (!activeModalProduct) return;
-            const optionPriceSum = selectedOptions.reduce((sum, o) => sum + o.priceAdd, 0);
-            const total = activeModalProduct.basePrice + optionPriceSum;
-            document.getElementById('modal-total-price').innerText = `฿${total}`;
+            if (!window.activeModalProduct) return;
+            const add = window.selectedOptions.reduce((sum, o) => sum + o.priceAdd, 0);
+            document.getElementById('modal-total-price').innerText = `฿${window.activeModalProduct.basePrice + add}`;
         }
 
-        function closeOptionModal() {
+        window.closeOptionModal = function() {
             document.getElementById('option-modal').classList.add('hidden');
-            activeModalProduct = null;
-            selectedOptions = [];
-        }
+            window.activeModalProduct = null;
+            window.selectedOptions = [];
+        };
 
-        function confirmAddToCart() {
-            if (activeModalProduct) {
-                addToCart(activeModalProduct, [...selectedOptions]);
-                closeOptionModal();
-            }
-        }
-
-        function addToCart(product, optionsList) {
+        window.confirmAddToCart = function() {
+            if (!window.activeModalProduct) return;
+            const product = window.activeModalProduct;
+            const optionsList = [...window.selectedOptions];
             const optionNames = optionsList.map(o => o.name).join(' + ');
             const price = product.basePrice + optionsList.reduce((sum, o) => sum + o.priceAdd, 0);
-            const cost = product.baseCost + optionsList.reduce((sum, o) => sum + o.costAdd, 0);
             const cartKey = `${product.id}_${optionNames}`;
 
-            const existing = cart.find(item => item.key === cartKey);
+            const existing = window.cart.find(item => item.key === cartKey);
             if (existing) {
                 if (existing.qty + 1 > product.stock) return alert('สินค้าในสต็อกไม่พอ');
                 existing.qty += 1;
             } else {
-                cart.push({
-                    key: cartKey,
-                    productId: product.id,
-                    name: product.name,
-                    optionName: optionNames,
-                    price: price,
-                    cost: cost,
-                    qty: 1
-                });
+                window.cart.push({ key: cartKey, productId: product.id, name: product.name, optionName: optionNames, price, qty: 1 });
             }
             renderCart();
-        }
+            window.closeOptionModal();
+        };
 
-        function updateCartQty(key, delta) {
-            const item = cart.find(i => i.key === key);
+        window.updateCartQty = function(key, delta) {
+            const item = window.cart.find(i => i.key === key);
             if (!item) return;
-
             item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => i.key !== key);
+            if (item.qty <= 0) window.cart = window.cart.filter(i => i.key !== key);
             renderCart();
-        }
+        };
 
-        function clearCart() {
-            cart = [];
-            isSplitPaymentActive = false;
+        window.clearCart = function() {
+            window.cart = [];
+            window.isSplitPaymentActive = false;
             renderCart();
-        }
+        };
 
         function renderCart() {
             const container = document.getElementById('cart-items');
-            if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 text-stone-400">
-                        <i class="fa-solid fa-basket-shopping text-3xl mb-2"></i>
-                        <p class="text-xs">ตระกร้ายังว่างอยู่</p>
-                    </div>
-                `;
+            if (window.cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-stone-400"><i class="fa-solid fa-basket-shopping text-3xl mb-2"></i><p class="text-xs">ยังไม่มีรายการในตะกร้า</p></div>`;
                 document.getElementById('cart-total').innerText = '฿0';
                 return;
             }
-
             let subtotal = 0;
-
-            container.innerHTML = cart.map(item => {
+            container.innerHTML = window.cart.map(item => {
                 const itemTotal = item.price * item.qty;
                 subtotal += itemTotal;
-
                 return `
-                    <div class="flex items-center justify-between bg-amber-50/60 dark:bg-stone-900 p-2 rounded-xl border border-amber-100 dark:border-stone-700 text-xs">
+                    <div class="flex items-center justify-between bg-amber-50/60 dark:bg-stone-900 p-2.5 rounded-xl border border-amber-100 dark:border-stone-700 text-xs">
                         <div>
-                            <p class="font-bold text-toast-950 dark:text-stone-100">${item.name}</p>
-                            ${item.optionName ? `<p class="text-[11px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded inline-block">${item.optionName}</p>` : ''}
-                            <p class="text-stone-500 dark:text-stone-400">฿${item.price} x ${item.qty}</p>
+                            <p class="font-bold text-mochi-950 dark:text-stone-100">${item.name}</p>
+                            ${item.optionName ? `<p class="text-[11px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded inline-block mt-0.5">+ ${item.optionName}</p>` : ''}
+                            <p class="text-stone-500 dark:text-stone-400 mt-0.5">฿${item.price} x ${item.qty}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-amber-900 dark:text-amber-400">฿${itemTotal}</span>
                             <div class="flex items-center bg-white dark:bg-stone-800 rounded-lg border border-amber-200 dark:border-stone-600">
                                 <button onclick="updateCartQty('${item.key}', -1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">-</button>
-                                <span class="px-1.5 font-medium text-toast-950 dark:text-white">${item.qty}</span>
+                                <span class="px-1.5 font-medium text-mochi-950 dark:text-white">${item.qty}</span>
                                 <button onclick="updateCartQty('${item.key}', 1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">+</button>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
-
             document.getElementById('cart-total').innerText = `฿${subtotal}`;
         }
 
-        // Cash Numpad Modal
-        function openCashModal() {
-            if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
-            const total = isSplitPaymentActive ? splitCashPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            
+        // Payment Modals
+        window.openCashModal = function() {
+            if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
+            const total = window.isSplitPaymentActive ? window.splitCashPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             document.getElementById('cash-modal-total').innerText = `฿${total}`;
-            numpadAmountStr = "0";
+            window.numpadAmountStr = "0";
             updateNumpadDisplay();
             document.getElementById('cash-modal').classList.remove('hidden');
-        }
+        };
+        window.closeCashModal = function() { document.getElementById('cash-modal').classList.add('hidden'); };
 
-        function closeCashModal() {
-            document.getElementById('cash-modal').classList.add('hidden');
-        }
-
-        function pressNumpad(key) {
-            const total = isSplitPaymentActive ? splitCashPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            if (key === 'exact') {
-                numpadAmountStr = total.toString();
-            } else if (key === 'add50') {
-                numpadAmountStr = (parseInt(numpadAmountStr || 0) + 50).toString();
-            } else if (key === 'add100') {
-                numpadAmountStr = (parseInt(numpadAmountStr || 0) + 100).toString();
-            } else if (key === 'add500') {
-                numpadAmountStr = (parseInt(numpadAmountStr || 0) + 500).toString();
-            } else if (key === 'C') {
-                numpadAmountStr = "0";
-            } else if (key === 'backspace') {
-                if (numpadAmountStr.length > 1) {
-                    numpadAmountStr = numpadAmountStr.slice(0, -1);
-                } else {
-                    numpadAmountStr = "0";
-                }
-            } else {
-                if (numpadAmountStr === "0") numpadAmountStr = key;
-                else numpadAmountStr += key;
-            }
+        window.pressNumpad = function(key) {
+            const total = window.isSplitPaymentActive ? window.splitCashPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if (key === 'exact') window.numpadAmountStr = total.toString();
+            else if (key === 'add50') window.numpadAmountStr = (parseInt(window.numpadAmountStr || 0) + 50).toString();
+            else if (key === 'add100') window.numpadAmountStr = (parseInt(window.numpadAmountStr || 0) + 100).toString();
+            else if (key === 'add500') window.numpadAmountStr = (parseInt(window.numpadAmountStr || 0) + 500).toString();
+            else if (key === 'C') window.numpadAmountStr = "0";
+            else if (key === 'backspace') window.numpadAmountStr = window.numpadAmountStr.length > 1 ? window.numpadAmountStr.slice(0, -1) : "0";
+            else window.numpadAmountStr = window.numpadAmountStr === "0" ? key : window.numpadAmountStr + key;
             updateNumpadDisplay();
-        }
+        };
 
         function updateNumpadDisplay() {
-            const total = isSplitPaymentActive ? splitCashPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const received = parseInt(numpadAmountStr) || 0;
+            const total = window.isSplitPaymentActive ? window.splitCashPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const received = parseInt(window.numpadAmountStr) || 0;
             const change = received - total;
-
             document.getElementById('numpad-display').innerText = `฿${received}`;
-
             const changeDisplay = document.getElementById('cash-change-display');
             if (change >= 0) {
                 changeDisplay.innerText = `฿${change}`;
@@ -1005,355 +708,167 @@
             }
         }
 
-        function confirmCashSale() {
-            const total = isSplitPaymentActive ? splitCashPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const received = parseInt(numpadAmountStr) || 0;
-            if (received < total) return alert('จำนวนเงินรับมาไม่พอ');
+        window.confirmCashSale = function() {
+            const total = window.isSplitPaymentActive ? window.splitCashPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if ((parseInt(window.numpadAmountStr) || 0) < total) return alert('จำนวนเงินรับมาไม่พอ');
+            window.closeCashModal();
+            completeTransaction(window.isSplitPaymentActive ? 'จ่ายผสม (โอน+เงินสด)' : 'เงินสด');
+        };
 
-            closeCashModal();
-            completeTransaction(isSplitPaymentActive ? 'จ่ายผสม (สแกน+เงินสด)' : 'เงินสด');
-        }
-
-        // PromptPay QR Modal
-        function openQRModal() {
-            if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
-            const total = isSplitPaymentActive ? splitQRPart : cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
+        window.openQRModal = function() {
+            if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
+            const total = window.isSplitPaymentActive ? window.splitQRPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             document.getElementById('qr-modal-total').innerText = `฿${total}`;
-            const qrUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${total}.png`;
-            document.getElementById('qr-image').src = qrUrl;
+            document.getElementById('qr-image').src = `https://promptpay.io/${PROMPTPAY_NUMBER}/${total}.png`;
             document.getElementById('qr-modal').classList.remove('hidden');
-        }
+        };
+        window.closeQRModal = function() { document.getElementById('qr-modal').classList.add('hidden'); };
+        window.confirmQRSale = function() {
+            window.closeQRModal();
+            if (window.isSplitPaymentActive) window.openCashModal();
+            else completeTransaction('PromptPay');
+        };
 
-        function closeQRModal() {
-            document.getElementById('qr-modal').classList.add('hidden');
-        }
-
-        function confirmQRSale() {
-            closeQRModal();
-            if (isSplitPaymentActive) {
-                openCashModal();
-            } else {
-                completeTransaction('PromptPay');
-            }
-        }
-
-        // Split Payment Numpad Modal
-        function openSplitPaymentModal() {
-            if (cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
+        window.openSplitPaymentModal = function() {
+            if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
+            const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             document.getElementById('split-modal-total').innerText = `฿${total}`;
-            
-            isSplitPaymentActive = true;
-            splitNumpadStr = "0";
+            window.isSplitPaymentActive = true;
+            window.splitNumpadStr = "0";
             updateSplitNumpadDisplay();
-
             document.getElementById('split-modal').classList.remove('hidden');
-        }
-
-        function closeSplitModal() {
+        };
+        window.closeSplitModal = function() {
             document.getElementById('split-modal').classList.add('hidden');
-            isSplitPaymentActive = false;
-        }
+            window.isSplitPaymentActive = false;
+        };
 
-        function pressSplitNumpad(key) {
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            if (key === 'half') {
-                splitNumpadStr = Math.floor(total / 2).toString();
-            } else if (key === 'add20') {
-                splitNumpadStr = (parseInt(splitNumpadStr || 0) + 20).toString();
-            } else if (key === 'add50') {
-                splitNumpadStr = (parseInt(splitNumpadStr || 0) + 50).toString();
-            } else if (key === 'add100') {
-                splitNumpadStr = (parseInt(splitNumpadStr || 0) + 100).toString();
-            } else if (key === 'C') {
-                splitNumpadStr = "0";
-            } else if (key === 'backspace') {
-                if (splitNumpadStr.length > 1) {
-                    splitNumpadStr = splitNumpadStr.slice(0, -1);
-                } else {
-                    splitNumpadStr = "0";
-                }
-            } else {
-                if (splitNumpadStr === "0") splitNumpadStr = key;
-                else splitNumpadStr += key;
-            }
+        window.pressSplitNumpad = function(key) {
+            const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if (key === 'half') window.splitNumpadStr = Math.floor(total / 2).toString();
+            else if (key === 'add20') window.splitNumpadStr = (parseInt(window.splitNumpadStr || 0) + 20).toString();
+            else if (key === 'add50') window.splitNumpadStr = (parseInt(window.splitNumpadStr || 0) + 50).toString();
+            else if (key === 'add100') window.splitNumpadStr = (parseInt(window.splitNumpadStr || 0) + 100).toString();
+            else if (key === 'C') window.splitNumpadStr = "0";
+            else if (key === 'backspace') window.splitNumpadStr = window.splitNumpadStr.length > 1 ? window.splitNumpadStr.slice(0, -1) : "0";
+            else window.splitNumpadStr = window.splitNumpadStr === "0" ? key : window.splitNumpadStr + key;
             updateSplitNumpadDisplay();
-        }
+        };
 
         function updateSplitNumpadDisplay() {
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let qrVal = parseInt(splitNumpadStr) || 0;
-
-            if (qrVal > total) {
-                qrVal = total;
-                splitNumpadStr = total.toString();
-            }
-
-            splitQRPart = qrVal;
-            splitCashPart = Math.max(0, total - splitQRPart);
-
-            document.getElementById('split-numpad-display').innerText = `฿${splitQRPart}`;
-            document.getElementById('split-cash-show').innerText = `฿${splitCashPart}`;
+            const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let qrVal = parseInt(window.splitNumpadStr) || 0;
+            if (qrVal > total) { qrVal = total; window.splitNumpadStr = total.toString(); }
+            window.splitQRPart = qrVal;
+            window.splitCashPart = Math.max(0, total - window.splitQRPart);
+            document.getElementById('split-numpad-display').innerText = `฿${window.splitQRPart}`;
+            document.getElementById('split-cash-show').innerText = `฿${window.splitCashPart}`;
         }
 
-        function proceedSplitQRStep() {
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            if (splitQRPart <= 0 || splitQRPart >= total) {
-                return alert('กรุณากดใส่ยอดสแกนโอนให้ถูกต้อง (ต้องมากกว่า 0 บาท และน้อยกว่ายอดรวมทั้งสิ้น)');
-            }
+        window.proceedSplitQRStep = function() {
+            const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if (window.splitQRPart <= 0 || window.splitQRPart >= total) return alert('กรุณาใส่ยอดสแกนโอนให้ถูกต้อง');
             document.getElementById('split-modal').classList.add('hidden');
-            openQRModal();
-        }
+            window.openQRModal();
+        };
 
-        // Waste Tracker Logic
-        function openWasteModal() {
-            const select = document.getElementById('waste-product-select');
-            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name} (ต้นทุน ฿${p.baseCost})</option>`).join('');
-            document.getElementById('waste-modal').classList.remove('hidden');
-        }
+        // Complete Transaction & Sync to Firestore
+        async function completeTransaction(paymentMethod) {
+            const totalRevenue = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' });
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
-        function closeWasteModal() {
-            document.getElementById('waste-modal').classList.add('hidden');
-        }
-
-        function confirmWasteLog() {
-            const prodId = document.getElementById('waste-product-select').value;
-            const qty = parseInt(document.getElementById('waste-qty-input').value) || 1;
-            const reason = document.getElementById('waste-reason-select').value;
-
-            const product = products.find(p => p.id === prodId);
-            if (!product) return;
-
-            if (product.stock < qty) {
-                return alert('จำนวนสต็อกสินค้าคงเหลือไม่พอตัดของเสีย');
+            for (const item of window.cart) {
+                const product = window.products.find(p => p.id === item.productId);
+                if (product) {
+                    await updateDoc(doc(db, "mochi_products", product.id), {
+                        stock: Math.max(0, product.stock - item.qty)
+                    });
+                }
             }
 
-            product.stock -= qty;
-            const totalWasteCost = product.baseCost * qty;
-
-            wasteHistory.push({
-                id: 'w_' + Date.now(),
-                productId: product.id,
-                productName: product.name,
-                qty: qty,
-                wasteCost: totalWasteCost,
-                reason: reason,
-                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            await addDoc(collection(db, "mochi_bakingOrders"), {
+                queue: window.currentQueue,
+                items: [...window.cart],
+                stage: 'Frying',
+                status: 'Baking',
+                stageStartTime: Date.now()
             });
 
-            saveData();
-            alert(`บันทึกของเสียสำเร็จ: ${product.name} x${qty} ชิ้น (ตัดต้นทุนเสีย ฿${totalWasteCost})`);
-            closeWasteModal();
-            renderStock();
-            renderProducts();
-            renderFinance();
-        }
-
-        // Gacha Wheel Logic
-        function drawGachaWheel() {
-            const canvas = document.getElementById('gacha-wheel-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const numSlices = products.length;
-            const sliceAngle = (2 * Math.PI) / numSlices;
-            const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#8B5CF6'];
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            products.forEach((p, i) => {
-                const angle = i * sliceAngle;
-                ctx.beginPath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.moveTo(110, 110);
-                ctx.arc(110, 110, 110, angle, angle + sliceAngle);
-                ctx.lineTo(110, 110);
-                ctx.fill();
-
-                ctx.save();
-                ctx.translate(110, 110);
-                ctx.rotate(angle + sliceAngle / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "#ffffff";
-                ctx.font = "bold 11px Prompt";
-                ctx.fillText(p.name.slice(0, 10), 95, 4);
-                ctx.restore();
-            });
-        }
-
-        function openGachaModal() {
-            document.getElementById('gacha-status-text').innerText = 'กดหมุนวงล้อเพื่อสุ่มขนมปัง + ท็อปปิ้งพิเศษในราคาคุ้ม ฿30';
-            document.getElementById('btn-spin-gacha').disabled = false;
-            document.getElementById('gacha-modal').classList.remove('hidden');
-            drawGachaWheel();
-        }
-
-        function closeGachaModal() {
-            if (isSpinningGacha) return;
-            document.getElementById('gacha-modal').classList.add('hidden');
-        }
-
-        function spinGachaWheel() {
-            if (isSpinningGacha) return;
-            isSpinningGacha = true;
-            document.getElementById('btn-spin-gacha').disabled = true;
-
-            const wheel = document.getElementById('gacha-wheel-canvas');
-            const randomProductIndex = Math.floor(Math.random() * products.length);
-            const selectedProduct = products[randomProductIndex];
-
-            const sliceDegree = 360 / products.length;
-            const targetDegree = 360 - (randomProductIndex * sliceDegree) - (sliceDegree / 2);
-            const totalRotation = currentWheelRotation + 1440 + targetDegree - (currentWheelRotation % 360);
-            
-            currentWheelRotation = totalRotation;
-            wheel.style.transform = `rotate(${totalRotation}deg)`;
-
-            setTimeout(() => {
-                isSpinningGacha = false;
-                let randomOpt = null;
-                if (selectedProduct.options.length > 0) {
-                    randomOpt = selectedProduct.options[Math.floor(Math.random() * selectedProduct.options.length)];
-                }
-
-                document.getElementById('gacha-status-text').innerText = `🎉 ยินดีด้วย! สุ่มได้: ${selectedProduct.name} ${randomOpt ? `(+${randomOpt.name})` : ''} (เพิ่มลงตระกร้าเรียบร้อย)`;
-                
-                addToCart(selectedProduct, randomOpt ? [randomOpt] : []);
-            }, 4000);
-        }
-
-        function completeTransaction(paymentMethod) {
-            cart.forEach(item => {
-                const product = products.find(p => p.id === item.productId);
-                if (product) product.stock -= item.qty;
-            });
-
-            const totalRevenue = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const totalCost = cart.reduce((sum, item) => sum + (item.cost * item.qty), 0);
-
-            bakingOrders.push({
-                id: 'b_' + Date.now(),
-                queue: currentQueue,
-                items: [...cart],
-                stage: 'AirFryer',
-                stageStartTime: Date.now(),
-                startTime: Date.now()
-            });
-
-            const now = new Date();
-            salesHistory.push({
-                id: 's_' + Date.now(),
-                queue: currentQueue,
-                timestamp: now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                hour: now.getHours(),
-                items: [...cart],
+            await addDoc(collection(db, "mochi_sales"), {
+                queue: window.currentQueue,
+                date: dateStr,
+                time: timeStr,
+                createdAt: Date.now(),
+                items: [...window.cart],
                 revenue: totalRevenue,
-                cost: totalCost,
-                profit: totalRevenue - totalCost,
                 paymentMethod: paymentMethod,
-                splitQR: isSplitPaymentActive ? splitQRPart : (paymentMethod === 'PromptPay' ? totalRevenue : 0),
-                splitCash: isSplitPaymentActive ? splitCashPart : (paymentMethod === 'เงินสด' ? totalRevenue : 0)
+                splitQR: window.isSplitPaymentActive ? window.splitQRPart : (paymentMethod === 'PromptPay' ? totalRevenue : 0),
+                splitCash: window.isSplitPaymentActive ? window.splitCashPart : (paymentMethod === 'เงินสด' ? totalRevenue : 0)
             });
 
-            alert(`ชำระเงินสำเร็จ! คิวที่ #${currentQueue} (ส่งเข้าหม้อทอดขั้นที่ 1 เรียบร้อย)`);
-            currentQueue += 1;
-            saveData();
-            updateQueueDisplay();
-            updateTopRanking();
-            renderProducts();
-            renderVisualQueueDisplay();
-            updateEstimatedWaitTime();
-            clearCart();
+            await setDoc(doc(db, "mochi_settings", "queue"), { value: window.currentQueue + 1 });
+
+            alert(`ชำระเงินสำเร็จ! คิวที่ #${window.currentQueue}`);
+            window.clearCart();
         }
 
+        // Kitchen & Queue Display
         function renderKitchenMonitor() {
             const container = document.getElementById('kitchen-cards-container');
-            const activeOrders = bakingOrders.filter(o => o.status !== 'Done');
+            const activeOrders = window.bakingOrders.filter(o => o.status !== 'Done');
 
-            document.getElementById('kitchen-badge').innerText = activeOrders.length;
-            if (activeOrders.length > 0) {
-                document.getElementById('kitchen-badge').classList.remove('hidden');
-            } else {
-                document.getElementById('kitchen-badge').classList.add('hidden');
-            }
+            const badge = document.getElementById('kitchen-badge');
+            badge.innerText = activeOrders.length;
+            badge.classList.toggle('hidden', activeOrders.length === 0);
 
             if (activeOrders.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-12 text-stone-400">
-                        <i class="fa-solid fa-fire-burner text-4xl mb-2"></i>
-                        <p class="text-sm">ไม่มีคิวขนมปังอยู่บนเตาปิ้งขณะนี้</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400"><i class="fa-solid fa-fire text-4xl mb-2"></i><p class="text-sm">ไม่มีคิวโมจิทอดในกระทะขณะนี้</p></div>`;
                 return;
             }
 
             container.innerHTML = activeOrders.map(order => {
-                const elapsedSec = Math.floor((Date.now() - (order.stageStartTime || order.startTime)) / 1000);
-                
-                let stageName = '';
-                let targetSec = 0;
-                let badgeClass = '';
-                let borderClass = '';
-                let nextBtnText = '';
-                let nextStage = '';
+                const elapsedSec = Math.floor((Date.now() - (order.stageStartTime || Date.now())) / 1000);
+                let stageName = '', targetSec = 0, badgeClass = '', borderClass = '', nextBtnText = '', nextStage = '';
 
-                if (order.stage === 'AirFryer' || !order.stage) {
-                    stageName = '1. 💨 หม้อทอดไร้น้ำมัน';
-                    targetSec = 200;
-                    badgeClass = 'bg-blue-600 text-white';
-                    borderClass = 'border-blue-400 bg-blue-50/30 dark:bg-blue-950/30';
-                    nextBtnText = '➔ ส่งไปลงกระทะ (ขั้นที่ 2)';
-                    nextStage = 'Pan';
-                } else if (order.stage === 'Pan') {
-                    stageName = '2. 🍳 ปิ้งบนกระทะ';
-                    targetSec = 60;
-                    badgeClass = 'bg-orange-500 text-white';
-                    borderClass = 'border-orange-400 bg-orange-50/30 dark:bg-orange-950/30';
-                    nextBtnText = '➔ ส่งไปแต่งหน้าขนม (ขั้นที่ 3)';
-                    nextStage = 'Topping';
+                if (order.stage === 'Frying' || !order.stage) {
+                    stageName = '1. 🔥 ทอดในกระทะ'; targetSec = 120;
+                    badgeClass = 'bg-orange-500 text-white'; borderClass = 'border-orange-400 bg-orange-50/30 dark:bg-orange-950/30';
+                    nextBtnText = '➔ ตักขึ้นแต่งหน้า/ราดซอส'; nextStage = 'Topping';
                 } else if (order.stage === 'Topping') {
-                    stageName = '3. 🎨 ตกแต่งหน้าตา';
-                    targetSec = 300;
-                    badgeClass = 'bg-purple-600 text-white';
-                    borderClass = 'border-purple-400 bg-purple-50/30 dark:bg-purple-950/30';
-                    nextBtnText = '✓ อบเสร็จเสิร์ฟหน้าร้าน';
-                    nextStage = 'Ready';
-                } else if (order.stage === 'Ready' || order.status === 'Ready') {
-                    stageName = '✨ พร้อมเสิร์ฟหน้าร้าน';
-                    targetSec = 0;
-                    badgeClass = 'bg-emerald-600 text-white';
-                    borderClass = 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/50 shadow-md';
-                    nextBtnText = '✓ มอบให้ลูกค้าแล้ว (จบงาน)';
-                    nextStage = 'Done';
+                    stageName = '2. 🍫 ราดซอส & โรยท็อปปิ้ง'; targetSec = 60;
+                    badgeClass = 'bg-purple-600 text-white'; borderClass = 'border-purple-400 bg-purple-50/30 dark:bg-purple-950/30';
+                    nextBtnText = '✓ เสร็จพร้อมเสิร์ฟหน้าร้าน'; nextStage = 'Ready';
+                } else {
+                    stageName = '✨ พร้อมเสิร์ฟหน้าร้าน'; targetSec = 0;
+                    badgeClass = 'bg-emerald-600 text-white'; borderClass = 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/50';
+                    nextBtnText = '✓ ลูกค้ารับของแล้ว (จบงาน)'; nextStage = 'Done';
                 }
 
                 const remainSec = Math.max(0, targetSec - elapsedSec);
-                const isStageOver = remainSec === 0 && targetSec > 0;
+                const isOver = remainSec === 0 && targetSec > 0;
 
                 return `
                     <div class="bg-white dark:bg-stone-900 rounded-2xl p-4 border-2 ${borderClass} space-y-3 shadow-sm">
                         <div class="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-2">
                             <div>
-                                <span class="font-black text-toast-950 dark:text-stone-100 text-base">คิวที่ #${order.queue}</span>
+                                <span class="font-black text-mochi-950 dark:text-stone-100 text-base">คิวที่ #${order.queue}</span>
                                 <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-bold">${stageName}</span>
                             </div>
-                            <span class="text-xs ${isStageOver ? 'bg-rose-600 text-white animate-bounce' : badgeClass} font-bold px-2.5 py-1 rounded-xl">
-                                ${targetSec === 0 ? 'เสร็จแล้ว' : (isStageOver ? 'ครบเวลาแล้ว!' : `เหลืออีก ${remainSec}s`)}
+                            <span class="text-xs ${isOver ? 'bg-rose-600 text-white animate-bounce' : badgeClass} font-bold px-2.5 py-1 rounded-xl">
+                                ${targetSec === 0 ? 'พร้อมรับ' : (isOver ? 'ครบเวลา!' : `${remainSec}s`)}
                             </span>
                         </div>
-                        
                         <div class="space-y-1.5 text-xs">
                             ${order.items.map(i => `
                                 <div class="flex justify-between text-stone-700 dark:text-stone-300">
-                                    <span>• ${i.name} ${i.optionName ? `(${i.optionName})` : ''}</span>
+                                    <span>• ${i.name} ${i.optionName ? `(+${i.optionName})` : ''}</span>
                                     <span class="font-bold">x${i.qty}</span>
                                 </div>
                             `).join('')}
                         </div>
-
-                        <button onclick="advanceKitchenStage('${order.id}', '${nextStage}')" class="w-full ${order.stage === 'Ready' || order.status === 'Ready' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-toast-900 hover:bg-toast-950 dark:bg-amber-600 dark:hover:bg-amber-700'} text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+                        <button onclick="advanceKitchenStage('${order.id}', '${nextStage}')" class="w-full ${order.stage === 'Ready' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-mochi-900 hover:bg-mochi-950 dark:bg-amber-600'} text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
                             ${nextBtnText}
                         </button>
                     </div>
@@ -1361,242 +876,212 @@
             }).join('');
         }
 
-        function advanceKitchenStage(orderId, nextStage) {
-            const order = bakingOrders.find(o => o.id === orderId);
-            if (order) {
-                if (nextStage === 'Done') {
-                    order.status = 'Done';
-                    order.stage = 'Done';
-                } else {
-                    order.stage = nextStage;
-                    order.stageStartTime = Date.now();
-                    if (nextStage === 'Ready') order.status = 'Ready';
-                }
-                saveData();
-                renderKitchenMonitor();
-                renderVisualQueueDisplay();
-                updateEstimatedWaitTime();
-            }
-        }
-
-        function updateKitchenTimers() {
-            renderKitchenMonitor();
-            renderVisualQueueDisplay();
-            updateEstimatedWaitTime();
-        }
+        window.advanceKitchenStage = async function(orderId, nextStage) {
+            const ref = doc(db, "mochi_bakingOrders", orderId);
+            if (nextStage === 'Done') await updateDoc(ref, { status: 'Done', stage: 'Done' });
+            else await updateDoc(ref, { stage: nextStage, stageStartTime: Date.now(), status: nextStage === 'Ready' ? 'Ready' : 'Baking' });
+        };
 
         function renderVisualQueueDisplay() {
             const bakingContainer = document.getElementById('display-baking-queues');
             const readyContainer = document.getElementById('display-ready-queues');
+            const bakingList = window.bakingOrders.filter(o => o.status !== 'Ready' && o.status !== 'Done');
+            const readyList = window.bakingOrders.filter(o => o.status === 'Ready' || o.stage === 'Ready');
 
-            const bakingOrdersList = bakingOrders.filter(o => o.status !== 'Ready' && o.status !== 'Done');
-            const readyOrdersList = bakingOrders.filter(o => o.status === 'Ready' || o.stage === 'Ready');
+            bakingContainer.innerHTML = bakingList.length === 0 
+                ? `<span class="text-xs text-stone-400">ไม่มีคิวที่กำลังทอด</span>`
+                : bakingList.map(o => `<span class="text-xl font-black bg-amber-200 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-4 py-2 rounded-xl border border-amber-300">#${o.queue}</span>`).join('');
 
-            if (bakingOrdersList.length === 0) {
-                bakingContainer.innerHTML = `<span class="text-xs text-stone-400">ไม่มีคิวที่กำลังปิ้ง</span>`;
-            } else {
-                bakingContainer.innerHTML = bakingOrdersList.map(o => `
-                    <span class="text-xl font-black bg-amber-200 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-4 py-2 rounded-xl border border-amber-300 shadow-sm">
-                        #${o.queue}
-                    </span>
-                `).join('');
-            }
-
-            if (readyOrdersList.length === 0) {
-                readyContainer.innerHTML = `<span class="text-xs text-stone-400">ไม่มีคิวที่รอรับ</span>`;
-            } else {
-                readyContainer.innerHTML = readyOrdersList.map(o => `
+            readyContainer.innerHTML = readyList.length === 0 
+                ? `<span class="text-xs text-stone-400">ไม่มีคิวที่รอรับ</span>`
+                : readyList.map(o => `
                     <div class="inline-flex flex-col items-center">
-                        <span class="text-2xl font-black bg-emerald-600 text-white px-5 py-2.5 rounded-xl shadow-md animate-bounce">
-                            #${o.queue}
-                        </span>
-                        <button onclick="dismissReadyQueue('${o.id}')" class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold hover:underline mt-1">รับสินค้าแล้ว ✓</button>
+                        <span class="text-2xl font-black bg-emerald-600 text-white px-5 py-2.5 rounded-xl shadow-md animate-bounce">#${o.queue}</span>
+                        <button onclick="advanceKitchenStage('${o.id}', 'Done')" class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold hover:underline mt-1">รับสินค้าแล้ว ✓</button>
                     </div>
                 `).join('');
-            }
         }
 
-        function dismissReadyQueue(orderId) {
-            const order = bakingOrders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'Done';
-                order.stage = 'Done';
-                saveData();
-                renderVisualQueueDisplay();
-                renderKitchenMonitor();
-                updateEstimatedWaitTime();
-            }
-        }
-
+        // Stock Control
         function renderStock() {
-            const tbody = document.getElementById('stock-table-body');
-            tbody.innerHTML = products.map(p => `
-                <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-700/40 transition">
-                    <td class="py-2.5 px-3 font-medium text-toast-950 dark:text-stone-100">${p.name}</td>
-                    <td class="py-2.5 px-3 text-stone-600 dark:text-stone-300">฿${p.basePrice}</td>
-                    <td class="py-2.5 px-3 text-center">
-                        <div class="inline-flex items-center bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700">
-                            <button onclick="changeStock('${p.id}', -1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">-1</button>
-                            <span class="px-2.5 font-bold text-toast-950 dark:text-white">${p.stock}</span>
-                            <button onclick="changeStock('${p.id}', 1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">+1</button>
-                        </div>
-                    </td>
-                    <td class="py-2.5 px-3 text-center">
-                        <span class="text-[10px] ${p.stock > 10 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'} px-2 py-0.5 rounded-full font-medium">
-                            ${p.stock > 0 ? 'พร้อมขาย' : 'หมด'}
-                        </span>
-                    </td>
-                </tr>
+            const container = document.getElementById('stock-list-container');
+            container.innerHTML = window.products.map(p => `
+                <div class="flex justify-between items-center bg-amber-50/50 dark:bg-stone-900 p-3 rounded-xl border border-amber-100 dark:border-stone-700 text-xs">
+                    <div>
+                        <p class="font-bold text-mochi-950 dark:text-stone-100">${p.name}</p>
+                        <p class="text-[11px] text-stone-500">ราคาขาย ฿${p.basePrice}</p>
+                    </div>
+                    <div class="flex items-center bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-600">
+                        <button onclick="changeStock('${p.id}', -5)" class="px-2.5 py-1 text-stone-600 dark:text-stone-300 font-bold">-5</button>
+                        <span class="px-3 font-black text-sm text-mochi-950 dark:text-white">${p.stock}</span>
+                        <button onclick="changeStock('${p.id}', 5)" class="px-2.5 py-1 text-emerald-600 font-bold">+5</button>
+                    </div>
+                </div>
             `).join('');
         }
 
-        function changeStock(productId, delta) {
-            const product = products.find(p => p.id === productId);
+        window.changeStock = async function(productId, delta) {
+            const product = window.products.find(p => p.id === productId);
             if (product) {
-                product.stock = Math.max(0, product.stock + delta);
-                saveData();
-                renderStock();
-                renderProducts();
+                await updateDoc(doc(db, "mochi_products", productId), { stock: Math.max(0, product.stock + delta) });
             }
-        }
+        };
 
-        // 🧾 LIVE EXPENSE TRACKER WITH DELETE & REAL-TIME RE-RENDER
-        function renderFinance() {
-            const totalRevenue = salesHistory.reduce((sum, s) => sum + s.revenue, 0);
-            const totalCash = salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
-            const totalQR = salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod === 'PromptPay' ? s.revenue : 0)), 0);
-            
-            const baseCOGS = salesHistory.reduce((sum, s) => sum + s.cost, 0);
-            const extraMaterialExpenses = expenses.filter(e => e.type === 'material').reduce((sum, e) => sum + e.amount, 0);
-            const totalCOGS = baseCOGS + extraMaterialExpenses;
+        // Detailed Accounting & Ledger
+        window.addExpenseManual = async function() {
+            const title = document.getElementById('exp-title').value.trim();
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            const category = document.getElementById('exp-category').value;
+            const note = document.getElementById('exp-note').value.trim();
 
-            const equipmentExpenses = expenses.filter(e => e.type === 'equipment' || !e.type).reduce((sum, e) => sum + e.amount, 0);
-            const totalWasteCost = wasteHistory.reduce((sum, w) => sum + w.wasteCost, 0);
-            const grandTotalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-            
-            const netProfit = totalRevenue - totalCOGS - equipmentExpenses - totalWasteCost;
+            if (!title) return alert('กรุณากรอกชื่อรายการที่ซื้อ / จ่าย');
+            if (isNaN(amount) || amount <= 0) return alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
+
+            const now = new Date();
+            await addDoc(collection(db, "mochi_expenses"), {
+                title,
+                amount,
+                category,
+                note: note || '-',
+                date: now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+                time: now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                createdAt: Date.now()
+            });
+
+            document.getElementById('exp-title').value = '';
+            document.getElementById('exp-amount').value = '';
+            document.getElementById('exp-note').value = '';
+        };
+
+        window.deleteLedgerItem = async function(type, id) {
+            if (!confirm('ต้องการลบรายการบัญชีนี้ใช่หรือไม่?')) return;
+            const colName = type === 'income' ? 'mochi_sales' : 'mochi_expenses';
+            await deleteDoc(doc(db, colName, id));
+        };
+
+        window.filterLedger = function(filterType) {
+            window.ledgerFilter = filterType;
+            ['all', 'income', 'expense'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filterType) {
+                    btn.className = "px-3 py-1 rounded-lg bg-mochi-900 text-white font-bold";
+                } else {
+                    btn.className = "px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200";
+                }
+            });
+            renderAccounting();
+        };
+
+        function renderAccounting() {
+            const totalRevenue = window.salesHistory.reduce((sum, s) => sum + s.revenue, 0);
+            const totalCash = window.salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
+            const totalQR = window.salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod === 'PromptPay' ? s.revenue : 0)), 0);
+            const totalExpense = window.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const netProfit = totalRevenue - totalExpense;
 
             document.getElementById('kpi-revenue').innerText = `฿${totalRevenue.toLocaleString()}`;
             document.getElementById('kpi-cash').innerText = `฿${totalCash.toLocaleString()}`;
             document.getElementById('kpi-qr').innerText = `฿${totalQR.toLocaleString()}`;
-            document.getElementById('kpi-cogs').innerText = `฿${totalCOGS.toLocaleString()}`;
-            document.getElementById('kpi-waste').innerText = `฿${totalWasteCost.toLocaleString()}`;
-            document.getElementById('kpi-expenses').innerText = `฿${equipmentExpenses.toLocaleString()}`;
+            document.getElementById('kpi-total-expense').innerText = `฿${totalExpense.toLocaleString()}`;
             
-            const expSummaryTag = document.getElementById('total-expense-summary-tag');
-            if (expSummaryTag) expSummaryTag.innerText = `฿${grandTotalExpenses.toLocaleString()}`;
-
             const profitEl = document.getElementById('kpi-profit');
             profitEl.innerText = `฿${netProfit.toLocaleString()}`;
-            
             const profitCard = document.getElementById('kpi-profit-card');
             if (netProfit < 0) {
-                profitCard.className = "bg-rose-50 dark:bg-rose-950/60 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-800";
+                profitCard.className = "col-span-2 sm:col-span-1 bg-rose-50 dark:bg-rose-950/60 p-4 rounded-2xl shadow-sm border border-rose-300 dark:border-rose-800";
                 profitEl.className = "text-2xl font-black text-rose-600 dark:text-rose-400";
             } else {
-                profitCard.className = "bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-700";
+                profitCard.className = "col-span-2 sm:col-span-1 bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-300 dark:border-emerald-700";
                 profitEl.className = "text-2xl font-black text-emerald-700 dark:text-emerald-300";
             }
 
-            renderHourlyChart();
+            // Merge & Sort Income + Expenses
+            const combinedLedger = [
+                ...window.salesHistory.map(s => ({
+                    id: s.id,
+                    type: 'income',
+                    category: 'ยอดขายหน้าร้าน',
+                    title: `คิว #${s.queue}: ` + (s.items ? s.items.map(i => `${i.name}${i.optionName ? ' (+'+i.optionName+')' : ''} x${i.qty}`).join(', ') : ''),
+                    note: s.paymentMethod,
+                    amount: s.revenue,
+                    date: s.date || '-',
+                    time: s.time || '-',
+                    createdAt: s.createdAt || 0
+                })),
+                ...window.expenses.map(e => ({
+                    id: e.id,
+                    type: 'expense',
+                    category: e.category || 'รายจ่ายทั่วไป',
+                    title: e.title,
+                    note: e.note || '-',
+                    amount: e.amount,
+                    date: e.date || '-',
+                    time: e.time || '-',
+                    createdAt: e.createdAt || 0
+                }))
+            ].sort((a, b) => b.createdAt - a.createdAt);
 
-            // แสดงรายการประวัติรายจ่ายเพิ่มเติมพร้อมปุ่มลบ
-            const expList = document.getElementById('expense-list');
-            if (expenses.length === 0) {
-                expList.innerHTML = '<p class="text-stone-400 text-[11px]">ยังไม่มีประวัติการบันทึกรายจ่ายเพิ่มเติม</p>';
-            } else {
-                expList.innerHTML = expenses.map(e => `
-                    <div class="flex justify-between items-center bg-stone-50 dark:bg-stone-900 p-2 rounded-xl border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200">
-                        <div>
-                            <span class="font-bold block text-xs">${e.title}</span>
-                            <span class="text-[10px] text-stone-500 dark:text-stone-400">${e.type === 'material' ? '🍞 ทุนวัตถุดิบ' : '🛠️ ทุนอุปกรณ์/อื่นๆ'}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-rose-600 dark:text-rose-400 text-xs">฿${e.amount.toLocaleString()}</span>
-                            <button onclick="deleteExpense('${e.id}')" class="text-stone-400 hover:text-rose-600 p-1 transition" title="ลบรายการ">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function renderHourlyChart() {
-            const chartContainer = document.getElementById('hourly-chart-container');
-            const hourlySales = Array(15).fill(0);
-
-            salesHistory.forEach(s => {
-                const h = s.hour !== undefined ? s.hour : 12;
-                if (h >= 8 && h <= 22) {
-                    hourlySales[h - 8] += s.revenue;
-                }
+            const filtered = combinedLedger.filter(item => {
+                if (window.ledgerFilter === 'all') return true;
+                return item.type === window.ledgerFilter;
             });
 
-            const maxRevenue = Math.max(...hourlySales, 1);
+            const tbody = document.getElementById('ledger-table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-stone-400">ยังไม่มีรายการบัญชีในหมวดนี้</td></tr>`;
+                return;
+            }
 
-            chartContainer.innerHTML = hourlySales.map((revenue, idx) => {
-                const hourLabel = (idx + 8).toString().padStart(2, '0') + ':00';
-                const heightPercent = Math.max(10, Math.round((revenue / maxRevenue) * 100));
-
+            tbody.innerHTML = filtered.map(row => {
+                const isInc = row.type === 'income';
                 return `
-                    <div class="flex flex-col items-center flex-1 min-w-[36px] h-full justify-end group">
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold opacity-0 group-hover:opacity-100 transition">฿${revenue}</span>
-                        <div class="w-full bg-gradient-to-t from-amber-600 to-amber-500 rounded-t-lg transition-all duration-500 group-hover:from-amber-500 group-hover:to-amber-400" style="height: ${heightPercent}%;"></div>
-                        <span class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-1">${hourLabel}</span>
-                    </div>
+                    <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-700/40 transition">
+                        <td class="py-2.5 px-3 whitespace-nowrap text-stone-500 dark:text-stone-400">${row.date} ${row.time}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isInc ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'}">
+                                ${isInc ? '+ รายรับ' : '- รายจ่าย'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 font-medium text-stone-700 dark:text-stone-300">${row.category}</td>
+                        <td class="py-2.5 px-3 font-bold text-mochi-950 dark:text-stone-100">${row.title}</td>
+                        <td class="py-2.5 px-3 text-stone-500 dark:text-stone-400">${row.note}</td>
+                        <td class="py-2.5 px-3 text-right font-black ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                            ${isInc ? '+' : '-'}฿${row.amount.toLocaleString()}
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            <button onclick="deleteLedgerItem('${row.type}', '${row.id}')" class="text-stone-400 hover:text-rose-600 p-1" title="ลบรายการ">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
                 `;
             }).join('');
         }
 
-        // ฟังก์ชันบันทึกรายจ่ายแบบ Manual Trigger (การันตีขึ้นประวัติทันที)
-        function addExpenseManual() {
-            const titleInput = document.getElementById('exp-title');
-            const amountInput = document.getElementById('exp-amount');
-            const typeInput = document.getElementById('exp-type');
+        window.exportAccountingCSV = function() {
+            let csv = "\uFEFFวันที่,เวลา,ประเภท,หมวดหมู่,รายละเอียดรายการ,หมายเหตุ/ช่องทาง,รายรับ (บาท),รายจ่าย (บาท)\n";
+            const allRows = [
+                ...window.salesHistory.map(s => ({
+                    date: s.date || '-', time: s.time || '-', type: 'รายรับ', category: 'ยอดขายหน้าร้าน',
+                    title: `คิว #${s.queue}: ` + (s.items ? s.items.map(i => `${i.name}${i.optionName ? ' (+'+i.optionName+')' : ''} x${i.qty}`).join(' | ') : ''),
+                    note: s.paymentMethod, inc: s.revenue, exp: 0, createdAt: s.createdAt || 0
+                })),
+                ...window.expenses.map(e => ({
+                    date: e.date || '-', time: e.time || '-', type: 'รายจ่าย', category: e.category || 'รายจ่าย',
+                    title: e.title, note: e.note || '-', inc: 0, exp: e.amount, createdAt: e.createdAt || 0
+                }))
+            ].sort((a, b) => a.createdAt - b.createdAt);
 
-            const title = titleInput.value.trim();
-            const amount = parseFloat(amountInput.value);
-            const type = typeInput.value;
-
-            if (!title) return alert('กรุณากรอกชื่อรายการรายจ่าย');
-            if (isNaN(amount) || amount <= 0) return alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
-
-            expenses.push({ 
-                id: 'e_' + Date.now(), 
-                title: title, 
-                amount: amount,
-                type: type 
-            });
-
-            saveData();
-            titleInput.value = '';
-            amountInput.value = '';
-            renderFinance();
-        }
-
-        function deleteExpense(expId) {
-            if (confirm('ต้องการลบรายการรายจ่ายนี้ใช่หรือไม่?')) {
-                expenses = expenses.filter(e => e.id !== expId);
-                saveData();
-                renderFinance();
-            }
-        }
-
-        function exportToCSV() {
-            let csv = "\uFEFFลำดับคิว,เวลา,รายการสินค้า,ยอดขาย (บาท),ต้นทุน (บาท),ประเภทชำระ\n";
-            salesHistory.forEach(s => {
-                const itemListStr = s.items.map(i => `${i.name}${i.optionName ? '('+i.optionName+')' : ''} x${i.qty}`).join(' | ');
-                csv += `"#${s.queue}","${s.timestamp}","${itemListStr}",${s.revenue},${s.cost},"${s.paymentMethod}"\n`;
+            allRows.forEach(r => {
+                csv += `"${r.date}","${r.time}","${r.type}","${r.category}","${r.title}","${r.note}",${r.inc},${r.exp}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `สรุปยอดขาย_Bakery_POS_${new Date().toISOString().slice(0,10)}.csv`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `บัญชีรายรับรายจ่าย_ร้านโมจิทอด_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
-        }
+        };
     </script>
 </body>
 </html>
