@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -33,10 +32,10 @@
         button * { pointer-events: none; }
     </style>
 </head>
-<body class="bg-[#FFFDF7] dark:bg-stone-900 text-mochi-950 dark:text-stone-100 min-h-screen flex flex-col selection:bg-amber-200 select-none transition-colors duration-200">
+<body class="bg-[#FFFDF7] text-mochi-950 min-h-screen flex flex-col selection:bg-amber-200 select-none">
 
     <!-- Header -->
-    <header class="bg-mochi-900 dark:bg-stone-950 text-amber-50 shadow-md sticky top-0 z-40">
+    <header class="bg-mochi-900 text-amber-50 shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
                 <span class="text-2xl">🍡</span>
@@ -49,13 +48,14 @@
                 </div>
             </div>
             
-            <button onclick="toggleDarkMode()" id="btn-dark" class="text-xs bg-stone-800 hover:bg-stone-700 text-amber-200 px-3 py-1.5 rounded-lg border border-stone-700 transition">
-                <i class="fa-solid fa-moon text-amber-300"></i>
-            </button>
+            <div class="text-right">
+                <span class="text-[11px] text-amber-200 block">โมจิพร้อมทอดคงเหลือ</span>
+                <span id="header-stock-tag" class="text-sm font-black text-emerald-400">0 ชิ้น</span>
+            </div>
         </div>
 
         <!-- Role Selector Tabs -->
-        <div class="bg-mochi-950/90 dark:bg-stone-900 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
+        <div class="bg-mochi-950/90 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
             <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS)
             </button>
@@ -79,35 +79,35 @@
         <section id="role-pos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-2 space-y-4">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-base font-bold dark:text-amber-200 flex items-center gap-2">
+                    <h2 class="text-base font-bold flex items-center gap-2">
                         <span>🍡</span> เลือกไซส์โมจิทอด
                     </h2>
-                    <span class="text-xs text-mochi-700 bg-amber-100/70 dark:bg-stone-800 dark:text-stone-300 px-3 py-1 rounded-full border border-amber-200 dark:border-stone-700 font-medium">
-                        กดเลือกเมนูเพื่อเพิ่มออปชั่นเสริม
+                    <span class="text-xs text-mochi-700 bg-amber-100/70 px-3 py-1 rounded-full border border-amber-200 font-medium">
+                        กดเลือกเมนูเพื่อเพิ่มท็อปปิ้ง
                     </span>
                 </div>
                 <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
 
             <!-- Cart Panel -->
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-4 shadow-sm border border-amber-200/80 dark:border-stone-700 flex flex-col justify-between h-[540px]">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-amber-200/80 flex flex-col justify-between h-[540px]">
                 <div>
-                    <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3 mb-3">
+                    <div class="flex justify-between items-center border-b border-amber-100 pb-3 mb-3">
                         <div>
-                            <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base flex items-center gap-2">
+                            <h3 class="font-bold text-mochi-950 text-base flex items-center gap-2">
                                 <i class="fa-solid fa-basket-shopping text-amber-600"></i> ออเดอร์ปัจจุบัน
                             </h3>
                             <span id="next-queue-tag" class="text-[11px] text-amber-900 bg-amber-100 px-2 py-0.5 rounded font-bold">คิวถัดไป: #1</span>
                         </div>
-                        <button onclick="clearCart()" class="text-xs text-rose-600 dark:text-rose-400 hover:underline">ล้างตะกร้า</button>
+                        <button onclick="clearCart()" class="text-xs text-rose-600 hover:underline">ล้างตะกร้า</button>
                     </div>
                     <div id="cart-items" class="space-y-2.5 overflow-y-auto max-h-[300px] pr-1"></div>
                 </div>
 
-                <div class="border-t border-amber-100 dark:border-stone-700 pt-3 space-y-3">
-                    <div class="flex justify-between items-center text-base font-bold text-mochi-950 dark:text-amber-100">
+                <div class="border-t border-amber-100 pt-3 space-y-3">
+                    <div class="flex justify-between items-center text-base font-bold text-mochi-950">
                         <span>ยอดรวมสุทธิ:</span>
-                        <span id="cart-total" class="text-amber-700 dark:text-amber-400 text-2xl font-extrabold">฿0</span>
+                        <span id="cart-total" class="text-amber-700 text-2xl font-extrabold">฿0</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
@@ -126,21 +126,21 @@
 
         <!-- ROLE 2: DISPLAY -->
         <section id="role-display" class="hidden space-y-4">
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-6 shadow-sm border border-amber-200 dark:border-stone-700 text-center">
-                <h2 class="text-xl font-bold text-mochi-950 dark:text-amber-200 mb-1">📺 สถานะคิวรับโมจิทอดหน้าร้าน</h2>
-                <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับโมจิทอดร้อนๆ</p>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-amber-200 text-center">
+                <h2 class="text-xl font-bold text-mochi-950 mb-1">📺 สถานะคิวรับโมจิทอดหน้าร้าน</h2>
+                <p class="text-xs text-stone-500 mb-6">กรุณารอเรียกหมายเลขคิวเพื่อรับโมจิทอดร้อนๆ</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-amber-50 dark:bg-stone-900 border-2 border-amber-300 dark:border-amber-600 rounded-2xl p-5 space-y-4">
-                        <div class="flex justify-center items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-lg border-b border-amber-200 dark:border-stone-700 pb-2">
-                            <i class="fa-solid fa-fire animate-bounce"></i> กำลังทอดในกระทะ...
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 space-y-4">
+                        <div class="flex justify-center items-center gap-2 text-amber-800 font-bold text-lg border-b border-amber-200 pb-2">
+                            <i class="fa-solid fa-fire animate-bounce"></i> กำลังจี่กระทะ & ตัดเสิร์ฟ...
                         </div>
                         <div id="display-baking-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center"></div>
                     </div>
 
-                    <div class="bg-emerald-50 dark:bg-stone-900 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-5 space-y-4">
-                        <div class="flex justify-center items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-lg border-b border-emerald-200 dark:border-stone-700 pb-2">
-                            <i class="fa-solid fa-bell animate-pulse"></i> ทอดเสร็จแล้ว พร้อมเสิร์ฟ! ✨
+                    <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-5 space-y-4">
+                        <div class="flex justify-center items-center gap-2 text-emerald-800 font-bold text-lg border-b border-emerald-200 pb-2">
+                            <i class="fa-solid fa-bell animate-pulse"></i> เสร็จแล้ว พร้อมรับ! ✨
                         </div>
                         <div id="display-ready-queues" class="flex flex-wrap gap-3 justify-center min-h-[140px] items-center"></div>
                     </div>
@@ -150,13 +150,13 @@
 
         <!-- ROLE 3: KITCHEN -->
         <section id="role-kitchen" class="hidden space-y-4">
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-3">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
+                <div class="flex justify-between items-center border-b border-amber-100 pb-3">
                     <div>
-                        <h2 class="text-lg font-bold text-mochi-950 dark:text-amber-200 flex items-center gap-2">
-                            <i class="fa-solid fa-fire text-orange-500"></i> จอคุมเตาทอดโมจิ (Kitchen Display)
+                        <h2 class="text-lg font-bold text-mochi-950 flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-orange-500"></i> จอคุมเตา & จี่กระทะ (Kitchen)
                         </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">ขั้นตอน: 1. ทอดลงกระทะ (120s) ➔ 2. ราดซอส/โรยท็อปปิ้ง ➔ 3. เสิร์ฟหน้าร้าน</p>
+                        <p class="text-xs text-stone-500">ขั้นตอน: 1. ตักขึ้นจี่บนกระทะ ➔ 2. ตัดชิ้น & ราดซอส/โรยผง ➔ 3. เสิร์ฟหน้าร้าน</p>
                     </div>
                 </div>
                 <div id="kitchen-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
@@ -167,10 +167,10 @@
         <section id="role-backoffice" class="hidden space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-3">
                 <div>
-                    <h2 class="text-xl font-bold text-mochi-950 dark:text-amber-200 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-mochi-950 flex items-center gap-2">
                         <i class="fa-solid fa-book text-emerald-600"></i> ระบบหลังบ้าน & บัญชีรายรับ-รายจ่ายละเอียด
                     </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">บันทึกค่าใช้จ่ายรายวัน ตรวจสอบกำไรสุทธิ และจัดการสต็อก</p>
+                    <p class="text-xs text-stone-500">จัดการจำนวนโมจิพร้อมทอด บันทึกรายจ่าย และตรวจสอบกำไรสุทธิ</p>
                 </div>
                 <button onclick="exportAccountingCSV()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-file-excel"></i> ดาวน์โหลดบัญชี (Excel / CSV)
@@ -179,48 +179,48 @@
 
             <!-- Financial Summary Cards -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รายรับรวมทั้งหมด</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-200">
+                    <p class="text-[11px] text-stone-500 mb-1">รายรับรวมทั้งหมด</p>
                     <p id="kpi-revenue" class="text-xl font-bold text-emerald-600">฿0</p>
                 </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-amber-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รับเงินสด</p>
-                    <p id="kpi-cash" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-amber-200">
+                    <p class="text-[11px] text-stone-500 mb-1">รับเงินสด</p>
+                    <p id="kpi-cash" class="text-xl font-bold text-amber-700">฿0</p>
                 </div>
-                <div class="bg-white dark:bg-stone-800 p-4 rounded-2xl shadow-sm border border-blue-200 dark:border-stone-700">
-                    <p class="text-[11px] text-stone-500 dark:text-stone-400 mb-1">รับโอน PromptPay</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200">
+                    <p class="text-[11px] text-stone-500 mb-1">รับโอน PromptPay</p>
                     <p id="kpi-qr" class="text-xl font-bold text-blue-600">฿0</p>
                 </div>
-                <div class="bg-rose-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900">
-                    <p class="text-[11px] text-rose-700 dark:text-rose-400 mb-1 font-bold">รายจ่ายรวมทั้งหมด</p>
-                    <p id="kpi-total-expense" class="text-xl font-bold text-rose-600 dark:text-rose-400">฿0</p>
+                <div class="bg-rose-50 p-4 rounded-2xl shadow-sm border border-rose-200">
+                    <p class="text-[11px] text-rose-700 mb-1 font-bold">รายจ่ายรวมทั้งหมด</p>
+                    <p id="kpi-total-expense" class="text-xl font-bold text-rose-600">฿0</p>
                 </div>
-                <div id="kpi-profit-card" class="col-span-2 sm:col-span-1 bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-300 dark:border-emerald-700">
-                    <p class="text-[11px] text-emerald-800 dark:text-emerald-400 mb-1 font-bold">ยอดคงเหลือสุทธิ (กำไร)</p>
-                    <p id="kpi-profit" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">฿0</p>
+                <div id="kpi-profit-card" class="col-span-2 sm:col-span-1 bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-300">
+                    <p class="text-[11px] text-emerald-800 mb-1 font-bold">ยอดคงเหลือสุทธิ (กำไร)</p>
+                    <p id="kpi-profit" class="text-2xl font-black text-emerald-700">฿0</p>
                 </div>
             </div>
 
-            <!-- Expense Entry Form & Stock Control -->
+            <!-- Expense Entry Form & Shared Mochi Stock -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- บันทึกรายจ่ายละเอียด -->
-                <div class="lg:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-2.5">
+                <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
+                    <h3 class="font-bold text-mochi-950 text-sm flex items-center gap-2 border-b border-amber-100 pb-2.5">
                         <i class="fa-solid fa-pen-to-square text-rose-500"></i> คีย์บันทึกรายจ่าย (ซื้อวัตถุดิบ / อุปกรณ์ / ค่าใช้จ่ายอื่นๆ)
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">ชื่อรายการที่ซื้อ / จ่าย *</label>
-                            <input type="text" id="exp-title" placeholder="เช่น ซื้อแป้งโมจิ 5 กก., ซื้อซอสเฮอร์ชีส์, ค่าถุง" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">ชื่อรายการที่ซื้อ / จ่าย *</label>
+                            <input type="text" id="exp-title" placeholder="เช่น ซื้อแป้งโมจิ, ซื้อซอสเฮอร์ชีส์, ค่าถุง" class="w-full text-xs p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">จำนวนเงิน (บาท) *</label>
-                                <input type="number" id="exp-amount" min="1" placeholder="0" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <label class="block text-[11px] font-bold text-stone-600 mb-1">จำนวนเงิน (บาท) *</label>
+                                <input type="number" id="exp-amount" min="1" placeholder="0" class="w-full text-xs p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">หมวดหมู่รายจ่าย</label>
-                                <select id="exp-category" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <label class="block text-[11px] font-bold text-stone-600 mb-1">หมวดหมู่รายจ่าย</label>
+                                <select id="exp-category" class="w-full text-xs p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
                                     <option value="วัตถุดิบ">🍡 วัตถุดิบ</option>
                                     <option value="บรรจุภัณฑ์">🛍️ ถุง/กล่อง/ไม้จิ้ม</option>
                                     <option value="ค่าเช่า/ค่าไฟ">⚡ ค่าที่/แก๊ส/ไฟ</option>
@@ -229,8 +229,8 @@
                             </div>
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">หมายเหตุเพิ่มเติม (ถ้ามี)</label>
-                            <input type="text" id="exp-note" placeholder="เช่น ซื้อจากแม็คโคร, จ่ายเงินสดหน้าร้าน" class="w-full text-xs p-2.5 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+                            <input type="text" id="exp-note" placeholder="เช่น ซื้อจากแม็คโคร, จ่ายเงินสดหน้าร้าน" class="w-full text-xs p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
                         </div>
                     </div>
                     <button type="button" onclick="addExpenseManual()" class="w-full sm:w-auto px-6 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-sm active:scale-95">
@@ -238,32 +238,53 @@
                     </button>
                 </div>
 
-                <!-- จัดการสต็อกโมจิ -->
-                <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-3">
-                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-2.5">
-                        <i class="fa-solid fa-boxes-stacked text-amber-600"></i> สต็อกโมจิทอดคงเหลือ
-                    </h3>
-                    <div id="stock-list-container" class="space-y-2.5"></div>
+                <!-- สต็อกโมจิพร้อมทอด (นับเป็นชิ้นรวม) -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-mochi-950 text-sm flex items-center gap-2 border-b border-amber-100 pb-2.5">
+                            <i class="fa-solid fa-boxes-stacked text-amber-600"></i> สต็อกโมจิทอด
+                        </h3>
+                        <p class="text-[11px] text-stone-500">ระบุจำนวนก้อนโมจิที่ปั้นและทอดรอในน้ำมันแล้ว (1 ออเดอร์จะตัดสต็อก 1 ชิ้น ทั้งไซส์เล็กและไซส์ใหญ่)</p>
+                        
+                        <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-200 text-center space-y-2 mt-2">
+                            <span class="text-xs font-bold text-mochi-900 block">โมจิที่พร้อมทอดแล้วตอนนี้</span>
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="adjustMochiStock(-1)" class="w-9 h-9 rounded-xl bg-white border border-stone-300 font-black text-stone-700 hover:bg-stone-100 active:scale-95">-1</button>
+                                <input type="number" id="shared-stock-input" min="0" value="0" class="w-24 text-center text-2xl font-black text-mochi-950 bg-white border-2 border-amber-400 rounded-xl py-1.5 focus:outline-none">
+                                <button onclick="adjustMochiStock(1)" class="w-9 h-9 rounded-xl bg-white border border-stone-300 font-black text-emerald-700 hover:bg-emerald-50 active:scale-95">+1</button>
+                            </div>
+                            <span class="text-xs text-stone-500 block">หน่วย: ชิ้น</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="adjustMochiStock(10)" class="flex-1 bg-amber-100 hover:bg-amber-200 text-mochi-950 font-bold py-2 rounded-xl text-xs transition">
+                            + เติม 10 ชิ้น
+                        </button>
+                        <button onclick="saveManualStock()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition">
+                            บันทึกจำนวนชิ้น
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- ตารางบัญชีรายรับ-รายจ่ายแบบละเอียด (Unified Ledger) -->
-            <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 shadow-sm border border-amber-200 dark:border-stone-700 space-y-4">
-                <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 dark:border-stone-700 pb-3">
-                    <h3 class="font-bold text-mochi-950 dark:text-amber-200 text-sm flex items-center gap-2">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 pb-3">
+                    <h3 class="font-bold text-mochi-950 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-list-check text-emerald-600"></i> สมุดบัญชีรายรับ - รายจ่ายละเอียด (เรียงตามเวลาล่าสุด)
                     </h3>
                     <div class="flex gap-1.5 text-xs">
                         <button onclick="filterLedger('all')" id="filter-all" class="px-3 py-1 rounded-lg bg-mochi-900 text-white font-bold">ทั้งหมด</button>
-                        <button onclick="filterLedger('income')" id="filter-income" class="px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200">เฉพาะรายรับ</button>
-                        <button onclick="filterLedger('expense')" id="filter-expense" class="px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200">เฉพาะรายจ่าย</button>
+                        <button onclick="filterLedger('income')" id="filter-income" class="px-3 py-1 rounded-lg bg-stone-100 text-stone-700">เฉพาะรายรับ</button>
+                        <button onclick="filterLedger('expense')" id="filter-expense" class="px-3 py-1 rounded-lg bg-stone-100 text-stone-700">เฉพาะรายจ่าย</button>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-amber-100 dark:border-stone-700 text-mochi-900 dark:text-amber-300 bg-amber-50/60 dark:bg-stone-900 text-xs">
+                            <tr class="border-b border-amber-100 text-mochi-900 bg-amber-50/60 text-xs">
                                 <th class="py-2.5 px-3">วันที่ / เวลา</th>
                                 <th class="py-2.5 px-3">ประเภท</th>
                                 <th class="py-2.5 px-3">หมวดหมู่</th>
@@ -273,7 +294,7 @@
                                 <th class="py-2.5 px-3 text-center">จัดการ</th>
                             </tr>
                         </thead>
-                        <tbody id="ledger-table-body" class="divide-y divide-amber-100 dark:divide-stone-700 text-xs"></tbody>
+                        <tbody id="ledger-table-body" class="divide-y divide-amber-100 text-xs"></tbody>
                     </table>
                 </div>
             </div>
@@ -282,19 +303,19 @@
 
     <!-- OPTION MODAL -->
     <div id="option-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-md w-full p-5 shadow-xl space-y-4">
-            <div class="flex justify-between items-start border-b border-amber-100 dark:border-stone-700 pb-3">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl space-y-4">
+            <div class="flex justify-between items-start border-b border-amber-100 pb-3">
                 <div>
-                    <h3 id="modal-product-name" class="font-bold text-mochi-950 dark:text-amber-100 text-lg">ชื่อเมนู</h3>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">เลือกออปชั่นเสริมได้หลายรายการ (หรือไม่เลือกก็ได้)</p>
+                    <h3 id="modal-product-name" class="font-bold text-mochi-950 text-lg">ชื่อเมนู</h3>
+                    <p class="text-xs text-stone-500">เลือกออปชั่นเสริมได้หลายรายการ (หรือไม่เลือกก็ได้)</p>
                 </div>
                 <button onclick="closeOptionModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div id="modal-options-list" class="space-y-2"></div>
-            <div class="border-t border-amber-100 dark:border-stone-700 pt-3 flex justify-between items-center">
+            <div class="border-t border-amber-100 pt-3 flex justify-between items-center">
                 <div>
-                    <span class="text-xs text-stone-500 dark:text-stone-400">ราคารวมต่อชุด:</span>
-                    <p id="modal-total-price" class="text-xl font-bold text-amber-700 dark:text-amber-400">฿0</p>
+                    <span class="text-xs text-stone-500">ราคารวมต่อชุด:</span>
+                    <p id="modal-total-price" class="text-xl font-bold text-amber-700">฿0</p>
                 </div>
                 <button onclick="confirmAddToCart()" class="bg-amber-700 hover:bg-amber-800 active:scale-95 text-white font-bold px-6 py-2.5 rounded-xl transition text-sm">เพิ่มลงตะกร้า</button>
             </div>
@@ -303,39 +324,39 @@
 
     <!-- CASH MODAL -->
     <div id="cash-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base">💵 ชำระเงินสด / ทอนเงิน</h3>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
+            <div class="flex justify-between items-center border-b border-amber-100 pb-2">
+                <h3 class="font-bold text-mochi-950 text-base">💵 ชำระเงินสด / ทอนเงิน</h3>
                 <button onclick="closeCashModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-2 text-center">
-                <div class="flex justify-between text-xs text-stone-600 dark:text-stone-400 px-1">
-                    <span>ยอดชำระเงินสด: <b id="cash-modal-total" class="text-amber-800 dark:text-amber-400 text-sm">฿0</b></span>
-                    <span>รับเงินมา: <b id="numpad-display" class="text-blue-600 dark:text-blue-400 text-sm">฿0</b></span>
+                <div class="flex justify-between text-xs text-stone-600 px-1">
+                    <span>ยอดชำระเงินสด: <b id="cash-modal-total" class="text-amber-800 text-sm">฿0</b></span>
+                    <span>รับเงินมา: <b id="numpad-display" class="text-blue-600 text-sm">฿0</b></span>
                 </div>
-                <div class="bg-amber-50 dark:bg-stone-900 p-2.5 rounded-xl border border-amber-200 dark:border-stone-700">
-                    <span class="text-[11px] text-mochi-800 dark:text-amber-300 font-medium">เงินทอนที่ต้องคืนลูกค้า:</span>
-                    <p id="cash-change-display" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">฿0</p>
+                <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                    <span class="text-[11px] text-mochi-800 font-medium">เงินทอนที่ต้องคืนลูกค้า:</span>
+                    <p id="cash-change-display" class="text-2xl font-bold text-emerald-600">฿0</p>
                 </div>
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
-                    <button onclick="pressNumpad('exact')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-mochi-950 dark:text-white text-xs py-2 rounded-lg font-bold">พอดี</button>
-                    <button onclick="pressNumpad('add50')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+50</button>
-                    <button onclick="pressNumpad('add100')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+100</button>
-                    <button onclick="pressNumpad('add500')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs py-2 rounded-lg font-bold">+500</button>
+                    <button onclick="pressNumpad('exact')" class="bg-amber-200 hover:bg-amber-300 text-mochi-950 text-xs py-2 rounded-lg font-bold">พอดี</button>
+                    <button onclick="pressNumpad('add50')" class="bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs py-2 rounded-lg font-bold">+50</button>
+                    <button onclick="pressNumpad('add100')" class="bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs py-2 rounded-lg font-bold">+100</button>
+                    <button onclick="pressNumpad('add500')" class="bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs py-2 rounded-lg font-bold">+500</button>
                 </div>
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
-                    <button onclick="pressNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">1</button>
-                    <button onclick="pressNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">2</button>
-                    <button onclick="pressNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">3</button>
-                    <button onclick="pressNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">4</button>
-                    <button onclick="pressNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">5</button>
-                    <button onclick="pressNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">6</button>
-                    <button onclick="pressNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">7</button>
-                    <button onclick="pressNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">8</button>
-                    <button onclick="pressNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">9</button>
-                    <button onclick="pressNumpad('C')" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-bold py-3 rounded-xl text-base">C</button>
-                    <button onclick="pressNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-3 rounded-xl text-lg">0</button>
-                    <button onclick="pressNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 font-bold py-3 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
+                    <button onclick="pressNumpad('1')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">1</button>
+                    <button onclick="pressNumpad('2')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">2</button>
+                    <button onclick="pressNumpad('3')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">3</button>
+                    <button onclick="pressNumpad('4')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">4</button>
+                    <button onclick="pressNumpad('5')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">5</button>
+                    <button onclick="pressNumpad('6')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">6</button>
+                    <button onclick="pressNumpad('7')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">7</button>
+                    <button onclick="pressNumpad('8')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">8</button>
+                    <button onclick="pressNumpad('9')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">9</button>
+                    <button onclick="pressNumpad('C')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold py-3 rounded-xl text-base">C</button>
+                    <button onclick="pressNumpad('0')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-3 rounded-xl text-lg">0</button>
+                    <button onclick="pressNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold py-3 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
                 </div>
             </div>
             <button onclick="confirmCashSale()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition text-sm">ยืนยันการรับเงิน</button>
@@ -344,17 +365,17 @@
 
     <!-- PROMPTPAY QR MODAL -->
     <div id="qr-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base">📱 สแกนจ่าย PromptPay</h3>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
+            <div class="flex justify-between items-center border-b border-amber-100 pb-2">
+                <h3 class="font-bold text-mochi-950 text-base">📱 สแกนจ่าย PromptPay</h3>
                 <button onclick="closeQRModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-1">
-                <p class="text-xs text-stone-500 dark:text-stone-400">ยอดสแกนชำระเงิน</p>
-                <p id="qr-modal-total" class="text-3xl font-bold text-blue-600 dark:text-blue-400">฿0</p>
+                <p class="text-xs text-stone-500">ยอดสแกนชำระเงิน</p>
+                <p id="qr-modal-total" class="text-3xl font-bold text-blue-600">฿0</p>
             </div>
             <div class="flex justify-center py-1">
-                <img id="qr-image" src="" alt="PromptPay QR Code" class="w-52 h-52 border border-stone-200 dark:border-stone-700 rounded-xl shadow-inner">
+                <img id="qr-image" src="" alt="PromptPay QR Code" class="w-52 h-52 border border-stone-200 rounded-xl shadow-inner">
             </div>
             <button onclick="confirmQRSale()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-sm">ยืนยันได้รับเงินแล้ว</button>
         </div>
@@ -362,39 +383,39 @@
 
     <!-- SPLIT PAYMENT MODAL -->
     <div id="split-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-stone-800 rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-3">
-            <div class="flex justify-between items-center border-b border-amber-100 dark:border-stone-700 pb-2">
-                <h3 class="font-bold text-mochi-950 dark:text-amber-100 text-base flex items-center gap-2"><i class="fa-solid fa-arrows-split-up-and-left text-purple-600"></i> ชำระเงินแบบจ่ายผสม</h3>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-3">
+            <div class="flex justify-between items-center border-b border-amber-100 pb-2">
+                <h3 class="font-bold text-mochi-950 text-base flex items-center gap-2"><i class="fa-solid fa-arrows-split-up-and-left text-purple-600"></i> ชำระเงินแบบจ่ายผสม</h3>
                 <button onclick="closeSplitModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-2 text-center">
-                <div class="bg-purple-50 dark:bg-stone-900 p-2 rounded-xl border border-purple-200 dark:border-stone-700">
-                    <span class="text-xs text-purple-800 dark:text-purple-300 font-medium">ยอดรวมทั้งสิ้น:</span>
-                    <p id="split-modal-total" class="text-2xl font-black text-purple-900 dark:text-purple-300">฿0</p>
+                <div class="bg-purple-50 p-2 rounded-xl border border-purple-200">
+                    <span class="text-xs text-purple-800 font-medium">ยอดรวมทั้งสิ้น:</span>
+                    <p id="split-modal-total" class="text-2xl font-black text-purple-900">฿0</p>
                 </div>
-                <div class="flex justify-between items-center text-xs text-stone-600 dark:text-stone-400 px-1 pt-1">
-                    <span>1. ยอดสแกนโอน: <b id="split-numpad-display" class="text-purple-700 dark:text-purple-400 text-sm">฿0</b></span>
-                    <span>2. ยอดเงินสดคงเหลือ: <b id="split-cash-show" class="text-emerald-600 dark:text-emerald-400 text-sm">฿0</b></span>
+                <div class="flex justify-between items-center text-xs text-stone-600 px-1 pt-1">
+                    <span>1. ยอดสแกนโอน: <b id="split-numpad-display" class="text-purple-700 text-sm">฿0</b></span>
+                    <span>2. ยอดเงินสดคงเหลือ: <b id="split-cash-show" class="text-emerald-600 text-sm">฿0</b></span>
                 </div>
                 <div class="grid grid-cols-4 gap-1.5 pt-1">
-                    <button onclick="pressSplitNumpad('add20')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+20</button>
-                    <button onclick="pressSplitNumpad('add50')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+50</button>
-                    <button onclick="pressSplitNumpad('add100')" class="bg-purple-100 hover:bg-purple-200 dark:bg-stone-700 text-purple-900 dark:text-purple-200 text-xs py-1.5 rounded-lg font-bold">+100</button>
-                    <button onclick="pressSplitNumpad('half')" class="bg-amber-200 hover:bg-amber-300 dark:bg-stone-700 text-mochi-950 dark:text-amber-200 text-xs py-1.5 rounded-lg font-bold">ครึ่งนึง</button>
+                    <button onclick="pressSplitNumpad('add20')" class="bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs py-1.5 rounded-lg font-bold">+20</button>
+                    <button onclick="pressSplitNumpad('add50')" class="bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs py-1.5 rounded-lg font-bold">+50</button>
+                    <button onclick="pressSplitNumpad('add100')" class="bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs py-1.5 rounded-lg font-bold">+100</button>
+                    <button onclick="pressSplitNumpad('half')" class="bg-amber-200 hover:bg-amber-300 text-mochi-950 text-xs py-1.5 rounded-lg font-bold">ครึ่งนึง</button>
                 </div>
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
-                    <button onclick="pressSplitNumpad('1')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">1</button>
-                    <button onclick="pressSplitNumpad('2')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">2</button>
-                    <button onclick="pressSplitNumpad('3')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">3</button>
-                    <button onclick="pressSplitNumpad('4')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">4</button>
-                    <button onclick="pressSplitNumpad('5')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">5</button>
-                    <button onclick="pressSplitNumpad('6')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">6</button>
-                    <button onclick="pressSplitNumpad('7')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">7</button>
-                    <button onclick="pressSplitNumpad('8')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">8</button>
-                    <button onclick="pressSplitNumpad('9')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">9</button>
-                    <button onclick="pressSplitNumpad('C')" class="bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-bold py-2.5 rounded-xl text-base">C</button>
-                    <button onclick="pressSplitNumpad('0')" class="bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white font-bold py-2.5 rounded-xl text-lg">0</button>
-                    <button onclick="pressSplitNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 text-mochi-900 dark:text-amber-200 font-bold py-2.5 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
+                    <button onclick="pressSplitNumpad('1')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">1</button>
+                    <button onclick="pressSplitNumpad('2')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">2</button>
+                    <button onclick="pressSplitNumpad('3')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">3</button>
+                    <button onclick="pressSplitNumpad('4')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">4</button>
+                    <button onclick="pressSplitNumpad('5')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">5</button>
+                    <button onclick="pressSplitNumpad('6')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">6</button>
+                    <button onclick="pressSplitNumpad('7')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">7</button>
+                    <button onclick="pressSplitNumpad('8')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">8</button>
+                    <button onclick="pressSplitNumpad('9')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">9</button>
+                    <button onclick="pressSplitNumpad('C')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold py-2.5 rounded-xl text-base">C</button>
+                    <button onclick="pressSplitNumpad('0')" class="bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold py-2.5 rounded-xl text-lg">0</button>
+                    <button onclick="pressSplitNumpad('backspace')" class="bg-amber-100 hover:bg-amber-200 text-mochi-900 font-bold py-2.5 rounded-xl text-base"><i class="fa-solid fa-delete-left"></i></button>
                 </div>
             </div>
             <button onclick="proceedSplitQRStep()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md">ถัดไป ➔ สแกนโอน QR</button>
@@ -423,7 +444,7 @@
 
         const PROMPTPAY_NUMBER = '0812345678'; 
 
-        // ออปชั่นเสริม 4 รายการตามโจทย์
+        // ออปชั่นเสริม 4 รายการ
         const MOCHI_OPTIONS = [
             { id: 'opt_hershey', name: 'ราดซอสช็อกโกแลตเฮอร์ชีส์นัท', priceAdd: 5 },
             { id: 'opt_oreo', name: 'โอริโอ้', priceAdd: 5 },
@@ -431,13 +452,14 @@
             { id: 'opt_banana', name: 'กล้วย', priceAdd: 10 }
         ];
 
-        // เมนูหลัก: โมจิทอด ไซส์เล็ก (25) และ ไซส์ใหญ่ (35)
+        // เมนูหลัก 2 ไซส์ (ไม่มีวงเล็บในชื่อ)
         const DEFAULT_PRODUCTS = [
-            { id: 'm_small', name: 'โมจิทอด (ไซส์เล็ก)', basePrice: 25, stock: 50, badge: 'S', color: 'bg-amber-100 text-amber-800', options: MOCHI_OPTIONS },
-            { id: 'm_large', name: 'โมจิทอด (ไซส์ใหญ่)', basePrice: 35, stock: 50, badge: 'L', color: 'bg-orange-100 text-orange-800', options: MOCHI_OPTIONS }
+            { id: 'm_small', name: 'โมจิทอด ไซส์เล็ก', basePrice: 25, badge: 'S', color: 'bg-amber-100 text-amber-800', options: MOCHI_OPTIONS },
+            { id: 'm_large', name: 'โมจิทอด ไซส์ใหญ่', basePrice: 35, badge: 'L', color: 'bg-orange-100 text-orange-800', options: MOCHI_OPTIONS }
         ];
 
         window.products = [];
+        window.sharedMochiStock = 50; // จำนวนชิ้นโมจิพร้อมทอดรวม
         window.salesHistory = [];
         window.expenses = [];
         window.bakingOrders = [];
@@ -448,50 +470,69 @@
         window.activeModalProduct = null;
         window.selectedOptions = [];
         window.numpadAmountStr = "0";
-        window.isDarkMode = false;
         window.isSplitPaymentActive = false;
         window.splitNumpadStr = "0";
         window.splitQRPart = 0;
         window.splitCashPart = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const currentHour = new Date().getHours();
-            if (currentHour >= 18 || currentHour < 6) setDarkMode(true);
-
-            // 1. Sync Products (แยก collection เป็น mochi_products)
+            // 1. Sync Products & ตรวจสอบให้มั่นใจว่ามีครบทั้ง ไซส์เล็ก และ ไซส์ใหญ่
             onSnapshot(collection(db, "mochi_products"), async (snapshot) => {
-                if (snapshot.empty) {
-                    for (const p of DEFAULT_PRODUCTS) {
+                const existingIds = snapshot.docs.map(d => d.id);
+                let needsCreation = false;
+
+                for (const p of DEFAULT_PRODUCTS) {
+                    if (!existingIds.includes(p.id)) {
                         await setDoc(doc(db, "mochi_products", p.id), p);
+                        needsCreation = true;
                     }
-                } else {
-                    window.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                }
+
+                if (!needsCreation) {
+                    window.products = snapshot.docs
+                        .filter(d => d.id === 'm_small' || d.id === 'm_large')
+                        .map(d => ({
+                            id: d.id,
+                            ...d.data(),
+                            name: d.id === 'm_small' ? 'โมจิทอด ไซส์เล็ก' : 'โมจิทอด ไซส์ใหญ่'
+                        }));
                     window.products.sort((a, b) => a.basePrice - b.basePrice);
                     renderProducts();
-                    renderStock();
                 }
             });
 
-            // 2. Sync Sales
+            // 2. Sync Shared Mochi Stock (จำนวนชิ้นโมจิพร้อมทอดรวม)
+            onSnapshot(doc(db, "mochi_settings", "shared_stock"), async (docSnap) => {
+                if (docSnap.exists()) {
+                    window.sharedMochiStock = docSnap.data().count ?? 0;
+                } else {
+                    await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: 50 });
+                    window.sharedMochiStock = 50;
+                }
+                updateStockUI();
+                renderProducts();
+            });
+
+            // 3. Sync Sales
             onSnapshot(collection(db, "mochi_sales"), (snapshot) => {
                 window.salesHistory = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAccounting();
             });
 
-            // 3. Sync Expenses
+            // 4. Sync Expenses
             onSnapshot(collection(db, "mochi_expenses"), (snapshot) => {
                 window.expenses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAccounting();
             });
 
-            // 4. Sync Kitchen Orders
+            // 5. Sync Kitchen Orders
             onSnapshot(collection(db, "mochi_bakingOrders"), (snapshot) => {
                 window.bakingOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderKitchenMonitor();
                 renderVisualQueueDisplay();
             });
 
-            // 5. Sync Queue Counter
+            // 6. Sync Queue Counter
             onSnapshot(doc(db, "mochi_settings", "queue"), (docSnap) => {
                 if (docSnap.exists()) {
                     window.currentQueue = docSnap.data().value || 1;
@@ -506,6 +547,31 @@
                 renderVisualQueueDisplay();
             }, 1000);
         });
+
+        function updateStockUI() {
+            const headerTag = document.getElementById('header-stock-tag');
+            if (headerTag) {
+                headerTag.innerText = `${window.sharedMochiStock} ชิ้น`;
+                headerTag.className = window.sharedMochiStock > 5 ? "text-sm font-black text-emerald-400" : "text-sm font-black text-rose-400 animate-pulse";
+            }
+            const inputEl = document.getElementById('shared-stock-input');
+            if (inputEl && document.activeElement !== inputEl) {
+                inputEl.value = window.sharedMochiStock;
+            }
+        }
+
+        window.adjustMochiStock = async function(delta) {
+            const nextCount = Math.max(0, window.sharedMochiStock + delta);
+            await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: nextCount });
+        };
+
+        window.saveManualStock = async function() {
+            const inputEl = document.getElementById('shared-stock-input');
+            const val = parseInt(inputEl.value);
+            if (isNaN(val) || val < 0) return alert('กรุณากรอกจำนวนชิ้นให้ถูกต้อง');
+            await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: val });
+            alert(`อัปเดตสต็อกโมจิพร้อมทอดเป็น ${val} ชิ้นเรียบร้อย!`);
+        };
 
         window.switchRole = function(roleId) {
             ['pos', 'display', 'kitchen', 'backoffice'].forEach(r => {
@@ -530,54 +596,47 @@
 
             if (roleId === 'display') renderVisualQueueDisplay();
             if (roleId === 'kitchen') renderKitchenMonitor();
-            if (roleId === 'backoffice') { renderStock(); renderAccounting(); }
+            if (roleId === 'backoffice') { updateStockUI(); renderAccounting(); }
         };
-
-        window.toggleDarkMode = function() { setDarkMode(!window.isDarkMode); };
-        function setDarkMode(enable) {
-            window.isDarkMode = enable;
-            document.body.classList.toggle('dark', enable);
-            document.getElementById('btn-dark').innerHTML = enable 
-                ? `<i class="fa-solid fa-sun text-yellow-400"></i>` 
-                : `<i class="fa-solid fa-moon text-amber-300"></i>`;
-        }
 
         function renderProducts() {
             const grid = document.getElementById('product-grid');
+            const hasStock = window.sharedMochiStock > 0;
             grid.innerHTML = window.products.map(p => `
-                <div onclick="openOptionModal('${p.id}')" class="bg-white dark:bg-stone-800 rounded-3xl p-6 shadow-sm border-2 ${p.stock > 0 ? 'border-amber-400/90 dark:border-amber-500/60 hover:border-amber-500' : 'border-stone-200 opacity-50'} cursor-pointer active:scale-95 transition flex flex-col justify-between min-h-[160px]">
+                <div onclick="openOptionModal('${p.id}')" class="bg-white rounded-3xl p-6 shadow-sm border-2 ${hasStock ? 'border-amber-400/90 hover:border-amber-500' : 'border-stone-200 opacity-50'} cursor-pointer active:scale-95 transition flex flex-col justify-between min-h-[160px]">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="font-bold text-mochi-950 dark:text-stone-100 text-xl leading-snug">${p.name}</h3>
-                            <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">เลือกเพิ่ม: ซอสช็อกโกแลต / โอริโอ้ / ไมโล / กล้วย</p>
+                            <h3 class="font-bold text-mochi-950 text-xl leading-snug">${p.name}</h3>
+                            <p class="text-xs text-stone-500 mt-1">เลือกเพิ่ม: ซอสช็อกโกแลต / โอริโอ้ / ไมโล / กล้วย</p>
                         </div>
                         <div class="w-10 h-10 rounded-full ${p.color} flex items-center justify-center font-black text-base shrink-0">
                             ${p.badge}
                         </div>
                     </div>
-                    <div class="flex justify-between items-end border-t border-amber-100/60 dark:border-stone-700/60 pt-3 mt-4">
-                        <span class="text-xs font-bold ${p.stock > 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">คงเหลือ ${p.stock} ชุด</span>
-                        <span class="text-3xl font-black text-amber-700 dark:text-amber-400 leading-none">฿${p.basePrice}</span>
+                    <div class="flex justify-between items-end border-t border-amber-100/60 pt-3 mt-4">
+                        <span class="text-xs font-bold ${window.sharedMochiStock > 5 ? 'text-emerald-600' : 'text-rose-600'}">พร้อมทอด ${window.sharedMochiStock} ชิ้น</span>
+                        <span class="text-3xl font-black text-amber-700 leading-none">฿${p.basePrice}</span>
                     </div>
                 </div>
             `).join('');
         }
 
         window.openOptionModal = function(productId) {
+            if (window.sharedMochiStock <= 0) return alert('โมจิพร้อมทอดหมดแล้ว กรุณาเติมสต็อกหลังบ้าน');
             const product = window.products.find(p => p.id === productId);
-            if (!product || product.stock <= 0) return;
+            if (!product) return;
 
             window.activeModalProduct = product;
             window.selectedOptions = [];
             document.getElementById('modal-product-name').innerText = product.name;
             
-            document.getElementById('modal-options-list').innerHTML = product.options.map(opt => `
-                <label onclick="toggleOption('${opt.id}')" class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 dark:border-stone-700 cursor-pointer hover:bg-amber-50 dark:hover:bg-stone-700 transition">
+            document.getElementById('modal-options-list').innerHTML = MOCHI_OPTIONS.map(opt => `
+                <label onclick="toggleOption('${opt.id}')" class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50 transition">
                     <div class="flex items-center gap-2.5">
                         <input type="checkbox" id="chk_${opt.id}" class="w-4 h-4 accent-amber-700">
-                        <span class="text-sm font-medium text-stone-800 dark:text-stone-200">${opt.name}</span>
+                        <span class="text-sm font-medium text-stone-800">${opt.name}</span>
                     </div>
-                    <span class="text-xs font-bold text-amber-800 dark:text-amber-400">+฿${opt.priceAdd}</span>
+                    <span class="text-xs font-bold text-amber-800">+฿${opt.priceAdd}</span>
                 </label>
             `).join('');
 
@@ -586,7 +645,7 @@
         };
 
         window.toggleOption = function(optId) {
-            const opt = window.activeModalProduct.options.find(o => o.id === optId);
+            const opt = MOCHI_OPTIONS.find(o => o.id === optId);
             const idx = window.selectedOptions.findIndex(o => o.id === optId);
             if (idx > -1) window.selectedOptions.splice(idx, 1);
             else window.selectedOptions.push(opt);
@@ -607,6 +666,9 @@
 
         window.confirmAddToCart = function() {
             if (!window.activeModalProduct) return;
+            const totalCartQty = window.cart.reduce((sum, i) => sum + i.qty, 0);
+            if (totalCartQty + 1 > window.sharedMochiStock) return alert('จำนวนโมจิพร้อมทอดไม่พอสำหรับออเดอร์นี้');
+
             const product = window.activeModalProduct;
             const optionsList = [...window.selectedOptions];
             const optionNames = optionsList.map(o => o.name).join(' + ');
@@ -615,7 +677,6 @@
 
             const existing = window.cart.find(item => item.key === cartKey);
             if (existing) {
-                if (existing.qty + 1 > product.stock) return alert('สินค้าในสต็อกไม่พอ');
                 existing.qty += 1;
             } else {
                 window.cart.push({ key: cartKey, productId: product.id, name: product.name, optionName: optionNames, price, qty: 1 });
@@ -627,6 +688,10 @@
         window.updateCartQty = function(key, delta) {
             const item = window.cart.find(i => i.key === key);
             if (!item) return;
+            if (delta > 0) {
+                const totalCartQty = window.cart.reduce((sum, i) => sum + i.qty, 0);
+                if (totalCartQty + 1 > window.sharedMochiStock) return alert('จำนวนโมจิพร้อมทอดไม่พอ');
+            }
             item.qty += delta;
             if (item.qty <= 0) window.cart = window.cart.filter(i => i.key !== key);
             renderCart();
@@ -650,18 +715,18 @@
                 const itemTotal = item.price * item.qty;
                 subtotal += itemTotal;
                 return `
-                    <div class="flex items-center justify-between bg-amber-50/60 dark:bg-stone-900 p-2.5 rounded-xl border border-amber-100 dark:border-stone-700 text-xs">
+                    <div class="flex items-center justify-between bg-amber-50/60 p-2.5 rounded-xl border border-amber-100 text-xs">
                         <div>
-                            <p class="font-bold text-mochi-950 dark:text-stone-100">${item.name}</p>
+                            <p class="font-bold text-mochi-950">${item.name}</p>
                             ${item.optionName ? `<p class="text-[11px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded inline-block mt-0.5">+ ${item.optionName}</p>` : ''}
-                            <p class="text-stone-500 dark:text-stone-400 mt-0.5">฿${item.price} x ${item.qty}</p>
+                            <p class="text-stone-500 mt-0.5">฿${item.price} x ${item.qty}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-amber-900 dark:text-amber-400">฿${itemTotal}</span>
-                            <div class="flex items-center bg-white dark:bg-stone-800 rounded-lg border border-amber-200 dark:border-stone-600">
-                                <button onclick="updateCartQty('${item.key}', -1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">-</button>
-                                <span class="px-1.5 font-medium text-mochi-950 dark:text-white">${item.qty}</span>
-                                <button onclick="updateCartQty('${item.key}', 1)" class="px-2 py-0.5 text-stone-600 dark:text-stone-300 font-bold">+</button>
+                            <span class="font-bold text-amber-900">฿${itemTotal}</span>
+                            <div class="flex items-center bg-white rounded-lg border border-amber-200">
+                                <button onclick="updateCartQty('${item.key}', -1)" class="px-2 py-0.5 text-stone-600 font-bold">-</button>
+                                <span class="px-1.5 font-medium text-mochi-950">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.key}', 1)" class="px-2 py-0.5 text-stone-600 font-bold">+</button>
                             </div>
                         </div>
                     </div>
@@ -701,10 +766,10 @@
             const changeDisplay = document.getElementById('cash-change-display');
             if (change >= 0) {
                 changeDisplay.innerText = `฿${change}`;
-                changeDisplay.className = "text-2xl font-bold text-emerald-600 dark:text-emerald-400";
+                changeDisplay.className = "text-2xl font-bold text-emerald-600";
             } else {
                 changeDisplay.innerText = `ขาดอีก ฿${Math.abs(change)}`;
-                changeDisplay.className = "text-lg font-bold text-rose-600 dark:text-rose-400";
+                changeDisplay.className = "text-lg font-bold text-rose-600";
             }
         }
 
@@ -772,30 +837,28 @@
             window.openQRModal();
         };
 
-        // Complete Transaction & Sync to Firestore
+        // Complete Transaction & Deduct Shared Mochi Stock
         async function completeTransaction(paymentMethod) {
             const totalRevenue = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const totalPiecesSold = window.cart.reduce((sum, item) => sum + item.qty, 0);
             const now = new Date();
             const dateStr = now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' });
             const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
-            for (const item of window.cart) {
-                const product = window.products.find(p => p.id === item.productId);
-                if (product) {
-                    await updateDoc(doc(db, "mochi_products", product.id), {
-                        stock: Math.max(0, product.stock - item.qty)
-                    });
-                }
-            }
+            // 1. หักสต็อกโมจิพร้อมทอดรวม (1 ชุด = 1 ชิ้น)
+            const remainingStock = Math.max(0, window.sharedMochiStock - totalPiecesSold);
+            await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: remainingStock });
 
+            // 2. ส่งออเดอร์เข้าเตา/กระทะ
             await addDoc(collection(db, "mochi_bakingOrders"), {
                 queue: window.currentQueue,
                 items: [...window.cart],
-                stage: 'Frying',
+                stage: 'Grilling',
                 status: 'Baking',
                 stageStartTime: Date.now()
             });
 
+            // 3. บันทึกรายรับเข้าบัญชี
             await addDoc(collection(db, "mochi_sales"), {
                 queue: window.currentQueue,
                 date: dateStr,
@@ -824,7 +887,7 @@
             badge.classList.toggle('hidden', activeOrders.length === 0);
 
             if (activeOrders.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400"><i class="fa-solid fa-fire text-4xl mb-2"></i><p class="text-sm">ไม่มีคิวโมจิทอดในกระทะขณะนี้</p></div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400"><i class="fa-solid fa-fire text-4xl mb-2"></i><p class="text-sm">ไม่มีคิวโมจิที่ต้องจี่บนกระทะขณะนี้</p></div>`;
                 return;
             }
 
@@ -832,17 +895,17 @@
                 const elapsedSec = Math.floor((Date.now() - (order.stageStartTime || Date.now())) / 1000);
                 let stageName = '', targetSec = 0, badgeClass = '', borderClass = '', nextBtnText = '', nextStage = '';
 
-                if (order.stage === 'Frying' || !order.stage) {
-                    stageName = '1. 🔥 ทอดในกระทะ'; targetSec = 120;
-                    badgeClass = 'bg-orange-500 text-white'; borderClass = 'border-orange-400 bg-orange-50/30 dark:bg-orange-950/30';
-                    nextBtnText = '➔ ตักขึ้นแต่งหน้า/ราดซอส'; nextStage = 'Topping';
-                } else if (order.stage === 'Topping') {
-                    stageName = '2. 🍫 ราดซอส & โรยท็อปปิ้ง'; targetSec = 60;
-                    badgeClass = 'bg-purple-600 text-white'; borderClass = 'border-purple-400 bg-purple-50/30 dark:bg-purple-950/30';
+                if (order.stage === 'Grilling' || order.stage === 'Frying' || !order.stage) {
+                    stageName = '1. 🔥 ตักขึ้น & จี่บนกระทะ'; targetSec = 60;
+                    badgeClass = 'bg-orange-500 text-white'; borderClass = 'border-orange-400 bg-orange-50/30';
+                    nextBtnText = '➔ ยกขึ้นตัดชิ้น & แต่งหน้า'; nextStage = 'Cutting';
+                } else if (order.stage === 'Cutting' || order.stage === 'Topping') {
+                    stageName = '2. ✂️ ตัดชิ้น & ราดซอส/โรยผง'; targetSec = 45;
+                    badgeClass = 'bg-purple-600 text-white'; borderClass = 'border-purple-400 bg-purple-50/30';
                     nextBtnText = '✓ เสร็จพร้อมเสิร์ฟหน้าร้าน'; nextStage = 'Ready';
                 } else {
                     stageName = '✨ พร้อมเสิร์ฟหน้าร้าน'; targetSec = 0;
-                    badgeClass = 'bg-emerald-600 text-white'; borderClass = 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/50';
+                    badgeClass = 'bg-emerald-600 text-white'; borderClass = 'border-emerald-500 bg-emerald-50/50';
                     nextBtnText = '✓ ลูกค้ารับของแล้ว (จบงาน)'; nextStage = 'Done';
                 }
 
@@ -850,11 +913,11 @@
                 const isOver = remainSec === 0 && targetSec > 0;
 
                 return `
-                    <div class="bg-white dark:bg-stone-900 rounded-2xl p-4 border-2 ${borderClass} space-y-3 shadow-sm">
-                        <div class="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-2">
+                    <div class="bg-white rounded-2xl p-4 border-2 ${borderClass} space-y-3 shadow-sm">
+                        <div class="flex justify-between items-center border-b border-stone-100 pb-2">
                             <div>
-                                <span class="font-black text-mochi-950 dark:text-stone-100 text-base">คิวที่ #${order.queue}</span>
-                                <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-bold">${stageName}</span>
+                                <span class="font-black text-mochi-950 text-base">คิวที่ #${order.queue}</span>
+                                <span class="text-[10px] text-stone-500 block font-bold">${stageName}</span>
                             </div>
                             <span class="text-xs ${isOver ? 'bg-rose-600 text-white animate-bounce' : badgeClass} font-bold px-2.5 py-1 rounded-xl">
                                 ${targetSec === 0 ? 'พร้อมรับ' : (isOver ? 'ครบเวลา!' : `${remainSec}s`)}
@@ -862,13 +925,13 @@
                         </div>
                         <div class="space-y-1.5 text-xs">
                             ${order.items.map(i => `
-                                <div class="flex justify-between text-stone-700 dark:text-stone-300">
+                                <div class="flex justify-between text-stone-700">
                                     <span>• ${i.name} ${i.optionName ? `(+${i.optionName})` : ''}</span>
                                     <span class="font-bold">x${i.qty}</span>
                                 </div>
                             `).join('')}
                         </div>
-                        <button onclick="advanceKitchenStage('${order.id}', '${nextStage}')" class="w-full ${order.stage === 'Ready' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-mochi-900 hover:bg-mochi-950 dark:bg-amber-600'} text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
+                        <button onclick="advanceKitchenStage('${order.id}', '${nextStage}')" class="w-full ${order.stage === 'Ready' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-mochi-900 hover:bg-mochi-950'} text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
                             ${nextBtnText}
                         </button>
                     </div>
@@ -889,43 +952,18 @@
             const readyList = window.bakingOrders.filter(o => o.status === 'Ready' || o.stage === 'Ready');
 
             bakingContainer.innerHTML = bakingList.length === 0 
-                ? `<span class="text-xs text-stone-400">ไม่มีคิวที่กำลังทอด</span>`
-                : bakingList.map(o => `<span class="text-xl font-black bg-amber-200 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-4 py-2 rounded-xl border border-amber-300">#${o.queue}</span>`).join('');
+                ? `<span class="text-xs text-stone-400">ไม่มีคิวที่กำลังทำ</span>`
+                : bakingList.map(o => `<span class="text-xl font-black bg-amber-200 text-amber-950 px-4 py-2 rounded-xl border border-amber-300">#${o.queue}</span>`).join('');
 
             readyContainer.innerHTML = readyList.length === 0 
                 ? `<span class="text-xs text-stone-400">ไม่มีคิวที่รอรับ</span>`
                 : readyList.map(o => `
                     <div class="inline-flex flex-col items-center">
                         <span class="text-2xl font-black bg-emerald-600 text-white px-5 py-2.5 rounded-xl shadow-md animate-bounce">#${o.queue}</span>
-                        <button onclick="advanceKitchenStage('${o.id}', 'Done')" class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold hover:underline mt-1">รับสินค้าแล้ว ✓</button>
+                        <button onclick="advanceKitchenStage('${o.id}', 'Done')" class="text-[10px] text-emerald-700 font-bold hover:underline mt-1">รับสินค้าแล้ว ✓</button>
                     </div>
                 `).join('');
         }
-
-        // Stock Control
-        function renderStock() {
-            const container = document.getElementById('stock-list-container');
-            container.innerHTML = window.products.map(p => `
-                <div class="flex justify-between items-center bg-amber-50/50 dark:bg-stone-900 p-3 rounded-xl border border-amber-100 dark:border-stone-700 text-xs">
-                    <div>
-                        <p class="font-bold text-mochi-950 dark:text-stone-100">${p.name}</p>
-                        <p class="text-[11px] text-stone-500">ราคาขาย ฿${p.basePrice}</p>
-                    </div>
-                    <div class="flex items-center bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-600">
-                        <button onclick="changeStock('${p.id}', -5)" class="px-2.5 py-1 text-stone-600 dark:text-stone-300 font-bold">-5</button>
-                        <span class="px-3 font-black text-sm text-mochi-950 dark:text-white">${p.stock}</span>
-                        <button onclick="changeStock('${p.id}', 5)" class="px-2.5 py-1 text-emerald-600 font-bold">+5</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.changeStock = async function(productId, delta) {
-            const product = window.products.find(p => p.id === productId);
-            if (product) {
-                await updateDoc(doc(db, "mochi_products", productId), { stock: Math.max(0, product.stock + delta) });
-            }
-        };
 
         // Detailed Accounting & Ledger
         window.addExpenseManual = async function() {
@@ -966,7 +1004,7 @@
                 if (f === filterType) {
                     btn.className = "px-3 py-1 rounded-lg bg-mochi-900 text-white font-bold";
                 } else {
-                    btn.className = "px-3 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200";
+                    btn.className = "px-3 py-1 rounded-lg bg-stone-100 text-stone-700";
                 }
             });
             renderAccounting();
@@ -988,14 +1026,13 @@
             profitEl.innerText = `฿${netProfit.toLocaleString()}`;
             const profitCard = document.getElementById('kpi-profit-card');
             if (netProfit < 0) {
-                profitCard.className = "col-span-2 sm:col-span-1 bg-rose-50 dark:bg-rose-950/60 p-4 rounded-2xl shadow-sm border border-rose-300 dark:border-rose-800";
-                profitEl.className = "text-2xl font-black text-rose-600 dark:text-rose-400";
+                profitCard.className = "col-span-2 sm:col-span-1 bg-rose-50 p-4 rounded-2xl shadow-sm border border-rose-300";
+                profitEl.className = "text-2xl font-black text-rose-600";
             } else {
-                profitCard.className = "col-span-2 sm:col-span-1 bg-emerald-50 dark:bg-stone-900 p-4 rounded-2xl shadow-sm border border-emerald-300 dark:border-emerald-700";
-                profitEl.className = "text-2xl font-black text-emerald-700 dark:text-emerald-300";
+                profitCard.className = "col-span-2 sm:col-span-1 bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-300";
+                profitEl.className = "text-2xl font-black text-emerald-700";
             }
 
-            // Merge & Sort Income + Expenses
             const combinedLedger = [
                 ...window.salesHistory.map(s => ({
                     id: s.id,
@@ -1035,17 +1072,17 @@
             tbody.innerHTML = filtered.map(row => {
                 const isInc = row.type === 'income';
                 return `
-                    <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-700/40 transition">
-                        <td class="py-2.5 px-3 whitespace-nowrap text-stone-500 dark:text-stone-400">${row.date} ${row.time}</td>
+                    <tr class="hover:bg-amber-50/40 transition">
+                        <td class="py-2.5 px-3 whitespace-nowrap text-stone-500">${row.date} ${row.time}</td>
                         <td class="py-2.5 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isInc ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'}">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isInc ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
                                 ${isInc ? '+ รายรับ' : '- รายจ่าย'}
                             </span>
                         </td>
-                        <td class="py-2.5 px-3 font-medium text-stone-700 dark:text-stone-300">${row.category}</td>
-                        <td class="py-2.5 px-3 font-bold text-mochi-950 dark:text-stone-100">${row.title}</td>
-                        <td class="py-2.5 px-3 text-stone-500 dark:text-stone-400">${row.note}</td>
-                        <td class="py-2.5 px-3 text-right font-black ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                        <td class="py-2.5 px-3 font-medium text-stone-700">${row.category}</td>
+                        <td class="py-2.5 px-3 font-bold text-mochi-950">${row.title}</td>
+                        <td class="py-2.5 px-3 text-stone-500">${row.note}</td>
+                        <td class="py-2.5 px-3 text-right font-black ${isInc ? 'text-emerald-600' : 'text-rose-600'}">
                             ${isInc ? '+' : '-'}฿${row.amount.toLocaleString()}
                         </td>
                         <td class="py-2.5 px-3 text-center">
