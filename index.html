@@ -6,6 +6,8 @@
     <title>โมจิทอด POS - ระบบหน้าร้าน & บัญชีรายรับ-รายจ่าย Real-Time</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -30,6 +32,7 @@
         body { font-family: 'Prompt', sans-serif; touch-action: manipulation; }
         button, a, input, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         button * { pointer-events: none; }
+        #qrcode-canvas img, #qrcode-canvas canvas { margin: 0 auto; display: block; }
     </style>
 </head>
 <body class="bg-[#FFFDF7] text-mochi-950 min-h-screen flex flex-col selection:bg-amber-200 select-none">
@@ -113,8 +116,8 @@
                         <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
                             <i class="fa-solid fa-money-bill-wave text-base"></i> เงินสด
                         </button>
-                        <button onclick="openQRModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
-                            <i class="fa-solid fa-qrcode text-base"></i> PromptPay
+                        <button onclick="openQRModal()" class="bg-[#0F3567] hover:bg-[#0a2549] active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                            <i class="fa-solid fa-qrcode text-base text-[#27C2A0]"></i> สแกนจ่าย QR
                         </button>
                         <button onclick="openSplitPaymentModal()" class="bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
                             <i class="fa-solid fa-arrows-split-up-and-left text-base"></i> จ่ายผสม
@@ -203,7 +206,6 @@
 
             <!-- Expense Entry Form & Shared Mochi Stock -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- บันทึกรายจ่ายละเอียด -->
                 <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
                     <h3 class="font-bold text-mochi-950 text-sm flex items-center gap-2 border-b border-amber-100 pb-2.5">
                         <i class="fa-solid fa-pen-to-square text-rose-500"></i> คีย์บันทึกรายจ่าย (ซื้อวัตถุดิบ / อุปกรณ์ / ค่าใช้จ่ายอื่นๆ)
@@ -268,7 +270,7 @@
                 </div>
             </div>
 
-            <!-- ตารางบัญชีรายรับ-รายจ่ายแบบละเอียด (Unified Ledger) -->
+            <!-- ตารางบัญชีรายรับ-รายจ่ายแบบละเอียด -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
                 <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 pb-3">
                     <h3 class="font-bold text-mochi-950 text-sm flex items-center gap-2">
@@ -363,21 +365,87 @@
         </div>
     </div>
 
-    <!-- PROMPTPAY QR MODAL -->
-    <div id="qr-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl text-center space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-100 pb-2">
-                <h3 class="font-bold text-mochi-950 text-base">📱 สแกนจ่าย PromptPay</h3>
-                <button onclick="closeQRModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MAKE BY KBANK STYLE PROMPTPAY QR MODAL -->
+    <div id="qr-modal" class="fixed inset-0 bg-stone-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-[#EBF7F9] rounded-3xl max-w-[340px] w-full p-4 shadow-2xl space-y-3 relative">
+            <!-- Close Button -->
+            <button onclick="closeQRModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-500 hover:text-stone-800 flex items-center justify-center shadow-sm transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- MAKE by KBank Header Logo -->
+            <div class="text-center pt-1">
+                <div class="inline-flex items-baseline justify-center font-extrabold text-2xl tracking-tight">
+                    <span class="text-[#19B596]">m</span><span class="text-[#124B78]">a</span><span class="text-[#19B596]">k</span><span class="text-[#124B78]">e</span>
+                </div>
+                <p class="text-[10px] text-stone-400 font-medium -mt-1">by <span class="font-bold text-stone-500">KBank</span></p>
             </div>
-            <div class="space-y-1">
-                <p class="text-xs text-stone-500">ยอดสแกนชำระเงิน</p>
-                <p id="qr-modal-total" class="text-3xl font-bold text-blue-600">฿0</p>
+
+            <!-- White Card Container -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-stone-100">
+                <!-- Navy Blue Top Banner -->
+                <div class="bg-[#0F3567] text-white py-2.5 px-4 flex items-center justify-center gap-2.5">
+                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-qrcode text-[#0F3567] text-lg"></i>
+                    </div>
+                    <div class="text-left leading-tight">
+                        <p class="font-bold text-xs tracking-wider">THAI QR</p>
+                        <p class="font-bold text-xs tracking-wider">PAYMENT</p>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-4 text-center space-y-2.5">
+                    <!-- PromptPay Badge -->
+                    <div class="inline-block border border-[#0F3567] px-2.5 py-0.5 rounded bg-white">
+                        <span class="text-[8px] text-stone-500 block leading-none text-right">พร้อมเพย์</span>
+                        <span class="font-black text-xs text-[#0F3567] tracking-tight">Prompt<span class="text-[#1D70B8]">Pay</span></span>
+                    </div>
+
+                    <!-- Amount Tag -->
+                    <div class="bg-sky-50 border border-sky-200 rounded-xl py-1.5 px-3">
+                        <span class="text-[10px] text-stone-500 block">ยอดชำระเงิน (ล็อกยอดอัตโนมัติ)</span>
+                        <span id="qr-modal-total" class="text-2xl font-black text-[#0F3567]">฿0</span>
+                    </div>
+
+                    <!-- Dynamic QR Code with Center Icon -->
+                    <div class="relative inline-block p-2 bg-white">
+                        <div id="qrcode-canvas" class="flex justify-center items-center"></div>
+                        <!-- Center Thai QR Overlay Badge -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="w-9 h-9 bg-white rounded-lg shadow-sm border border-stone-200 flex items-center justify-center">
+                                <div class="w-6 h-6 rounded bg-[#0F3567] flex items-center justify-center text-white text-[10px] font-black">
+                                    QR
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Details (Exact match from Make by KBank slip) -->
+                    <div class="space-y-0.5 pt-1">
+                        <p class="text-xs font-bold text-[#19B596]">สแกน QR เพื่อโอนเข้าบัญชี</p>
+                        <p class="text-sm font-extrabold text-stone-900">น.ส. ศศิพิมล แสนบน</p>
+                        <p class="text-xs font-semibold text-stone-500 tracking-wide">xxx-x-x9219-x</p>
+                        <p class="text-[10px] text-stone-400">เลขที่อ้างอิง 004666016578308</p>
+                    </div>
+
+                    <!-- Bottom Bank Footer -->
+                    <div class="border-t border-stone-100 pt-2.5 mt-2 flex justify-between items-center text-left">
+                        <div>
+                            <p class="text-[10px] text-stone-400 leading-tight">Accepts all banks</p>
+                            <p class="text-[10px] text-stone-400 leading-tight">รับเงินได้จากทุกธนาคาร</p>
+                        </div>
+                        <div class="w-9 h-7 rounded-lg border border-stone-200 flex items-center justify-center shadow-2xs">
+                            <span class="font-black text-base bg-gradient-to-r from-[#19B596] to-[#A3E635] bg-clip-text text-transparent">m</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex justify-center py-1">
-                <img id="qr-image" src="" alt="PromptPay QR Code" class="w-52 h-52 border border-stone-200 rounded-xl shadow-inner">
-            </div>
-            <button onclick="confirmQRSale()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-sm">ยืนยันได้รับเงินแล้ว</button>
+
+            <!-- Confirm Payment Button -->
+            <button onclick="confirmQRSale()" class="w-full bg-[#19B596] hover:bg-[#14967c] active:scale-95 text-white font-bold py-3 rounded-2xl transition text-sm shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> ยืนยันได้รับเงินแล้ว
+            </button>
         </div>
     </div>
 
@@ -442,9 +510,45 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const PROMPTPAY_NUMBER = '0812345678'; 
+        // รหัส PromptPay e-Wallet / MAKE by KBank Ref ID ของคุณ ศศิพิมล แสนบน
+        const MAKE_PROMPTPAY_ID = '004666016578308';
 
-        // ออปชั่นเสริม 4 รายการ
+        // ฟังก์ชันสร้าง Thai QR Code มาตรฐาน EMVCo (ล็อกยอดเงินตามบิลอัตโนมัติ)
+        function crc16(data) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= data.charCodeAt(i) << 8;
+                for (let j = 0; j < 8; j++) {
+                    if ((crc & 0x8000) !== 0) crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+                    else crc = (crc << 1) & 0xFFFF;
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function f(id, val) {
+            return id + val.length.toString().padStart(2, '0') + val;
+        }
+
+        function generateThaiQRPayload(promptpayId, amount) {
+            const aid = f('00', 'A000000677010111');
+            // 15 digits = e-Wallet ID (Tag 03)
+            const targetTag = promptpayId.length === 15 ? f('03', promptpayId) : f('02', promptpayId);
+            const merchantInfo = f('29', aid + targetTag);
+            const amountStr = Number(amount).toFixed(2);
+
+            let payload = 
+                f('00', '01') +          // Payload Format Indicator
+                f('01', '12') +          // Dynamic QR (ล็อกยอดเงิน)
+                merchantInfo +           // Merchant Account Info
+                f('53', '764') +         // THB Currency
+                f('54', amountStr) +     // Transaction Amount
+                f('58', 'TH') +          // Country Code
+                '6304';                  // CRC Tag
+
+            return payload + crc16(payload);
+        }
+
         const MOCHI_OPTIONS = [
             { id: 'opt_hershey', name: 'ราดซอสช็อกโกแลตเฮอร์ชีส์นัท', priceAdd: 5 },
             { id: 'opt_oreo', name: 'โอริโอ้', priceAdd: 5 },
@@ -452,14 +556,13 @@
             { id: 'opt_banana', name: 'กล้วย', priceAdd: 10 }
         ];
 
-        // เมนูหลัก 2 ไซส์ (ไม่มีวงเล็บในชื่อ)
         const DEFAULT_PRODUCTS = [
             { id: 'm_small', name: 'โมจิทอด ไซส์เล็ก', basePrice: 25, badge: 'S', color: 'bg-amber-100 text-amber-800', options: MOCHI_OPTIONS },
             { id: 'm_large', name: 'โมจิทอด ไซส์ใหญ่', basePrice: 35, badge: 'L', color: 'bg-orange-100 text-orange-800', options: MOCHI_OPTIONS }
         ];
 
         window.products = [];
-        window.sharedMochiStock = 50; // จำนวนชิ้นโมจิพร้อมทอดรวม
+        window.sharedMochiStock = 50;
         window.salesHistory = [];
         window.expenses = [];
         window.bakingOrders = [];
@@ -476,7 +579,6 @@
         window.splitCashPart = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Sync Products & ตรวจสอบให้มั่นใจว่ามีครบทั้ง ไซส์เล็ก และ ไซส์ใหญ่
             onSnapshot(collection(db, "mochi_products"), async (snapshot) => {
                 const existingIds = snapshot.docs.map(d => d.id);
                 let needsCreation = false;
@@ -501,7 +603,6 @@
                 }
             });
 
-            // 2. Sync Shared Mochi Stock (จำนวนชิ้นโมจิพร้อมทอดรวม)
             onSnapshot(doc(db, "mochi_settings", "shared_stock"), async (docSnap) => {
                 if (docSnap.exists()) {
                     window.sharedMochiStock = docSnap.data().count ?? 0;
@@ -513,26 +614,22 @@
                 renderProducts();
             });
 
-            // 3. Sync Sales
             onSnapshot(collection(db, "mochi_sales"), (snapshot) => {
                 window.salesHistory = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAccounting();
             });
 
-            // 4. Sync Expenses
             onSnapshot(collection(db, "mochi_expenses"), (snapshot) => {
                 window.expenses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAccounting();
             });
 
-            // 5. Sync Kitchen Orders
             onSnapshot(collection(db, "mochi_bakingOrders"), (snapshot) => {
                 window.bakingOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderKitchenMonitor();
                 renderVisualQueueDisplay();
             });
 
-            // 6. Sync Queue Counter
             onSnapshot(doc(db, "mochi_settings", "queue"), (docSnap) => {
                 if (docSnap.exists()) {
                     window.currentQueue = docSnap.data().value || 1;
@@ -735,7 +832,7 @@
             document.getElementById('cart-total').innerText = `฿${subtotal}`;
         }
 
-        // Payment Modals
+        // Cash Modal
         window.openCashModal = function() {
             if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = window.isSplitPaymentActive ? window.splitCashPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -780,20 +877,34 @@
             completeTransaction(window.isSplitPaymentActive ? 'จ่ายผสม (โอน+เงินสด)' : 'เงินสด');
         };
 
+        // MAKE by KBank QR Modal
         window.openQRModal = function() {
             if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = window.isSplitPaymentActive ? window.splitQRPart : window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             document.getElementById('qr-modal-total').innerText = `฿${total}`;
-            document.getElementById('qr-image').src = `https://promptpay.io/${PROMPTPAY_NUMBER}/${total}.png`;
+            
+            const qrContainer = document.getElementById('qrcode-canvas');
+            qrContainer.innerHTML = '';
+            const payload = generateThaiQRPayload(MAKE_PROMPTPAY_ID, total);
+            new QRCode(qrContainer, {
+                text: payload,
+                width: 175,
+                height: 175,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
             document.getElementById('qr-modal').classList.remove('hidden');
         };
         window.closeQRModal = function() { document.getElementById('qr-modal').classList.add('hidden'); };
         window.confirmQRSale = function() {
             window.closeQRModal();
             if (window.isSplitPaymentActive) window.openCashModal();
-            else completeTransaction('PromptPay');
+            else completeTransaction('PromptPay (MAKE)');
         };
 
+        // Split Payment Modal
         window.openSplitPaymentModal = function() {
             if (window.cart.length === 0) return alert('กรุณาเลือกสินค้าก่อน');
             const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -837,7 +948,6 @@
             window.openQRModal();
         };
 
-        // Complete Transaction & Deduct Shared Mochi Stock
         async function completeTransaction(paymentMethod) {
             const totalRevenue = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const totalPiecesSold = window.cart.reduce((sum, item) => sum + item.qty, 0);
@@ -845,11 +955,9 @@
             const dateStr = now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' });
             const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
-            // 1. หักสต็อกโมจิพร้อมทอดรวม (1 ชุด = 1 ชิ้น)
             const remainingStock = Math.max(0, window.sharedMochiStock - totalPiecesSold);
             await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: remainingStock });
 
-            // 2. ส่งออเดอร์เข้าเตา/กระทะ
             await addDoc(collection(db, "mochi_bakingOrders"), {
                 queue: window.currentQueue,
                 items: [...window.cart],
@@ -858,7 +966,6 @@
                 stageStartTime: Date.now()
             });
 
-            // 3. บันทึกรายรับเข้าบัญชี
             await addDoc(collection(db, "mochi_sales"), {
                 queue: window.currentQueue,
                 date: dateStr,
@@ -867,7 +974,7 @@
                 items: [...window.cart],
                 revenue: totalRevenue,
                 paymentMethod: paymentMethod,
-                splitQR: window.isSplitPaymentActive ? window.splitQRPart : (paymentMethod === 'PromptPay' ? totalRevenue : 0),
+                splitQR: window.isSplitPaymentActive ? window.splitQRPart : (paymentMethod.includes('PromptPay') ? totalRevenue : 0),
                 splitCash: window.isSplitPaymentActive ? window.splitCashPart : (paymentMethod === 'เงินสด' ? totalRevenue : 0)
             });
 
@@ -877,7 +984,6 @@
             window.clearCart();
         }
 
-        // Kitchen & Queue Display
         function renderKitchenMonitor() {
             const container = document.getElementById('kitchen-cards-container');
             const activeOrders = window.bakingOrders.filter(o => o.status !== 'Done');
@@ -965,7 +1071,6 @@
                 `).join('');
         }
 
-        // Detailed Accounting & Ledger
         window.addExpenseManual = async function() {
             const title = document.getElementById('exp-title').value.trim();
             const amount = parseFloat(document.getElementById('exp-amount').value);
@@ -1013,7 +1118,7 @@
         function renderAccounting() {
             const totalRevenue = window.salesHistory.reduce((sum, s) => sum + s.revenue, 0);
             const totalCash = window.salesHistory.reduce((sum, s) => sum + (s.splitCash !== undefined ? s.splitCash : (s.paymentMethod === 'เงินสด' ? s.revenue : 0)), 0);
-            const totalQR = window.salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod === 'PromptPay' ? s.revenue : 0)), 0);
+            const totalQR = window.salesHistory.reduce((sum, s) => sum + (s.splitQR !== undefined ? s.splitQR : (s.paymentMethod.includes('PromptPay') ? s.revenue : 0)), 0);
             const totalExpense = window.expenses.reduce((sum, e) => sum + e.amount, 0);
             const netProfit = totalRevenue - totalExpense;
 
