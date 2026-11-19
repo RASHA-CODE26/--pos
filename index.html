@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>โมจิทอด POS - ระบบหน้าร้าน & บัญชีรายรับ-รายจ่าย Real-Time</title>
+    <title>โมจิทอด POS - ระบบหน้าร้าน พรีออเดอร์ & บัญชี Real-Time</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- QRCode Generator Library -->
@@ -30,7 +30,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Prompt', sans-serif; touch-action: manipulation; }
-        button, a, input, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        button, a, input, select, label { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         button * { pointer-events: none; }
         #qrcode-canvas img, #qrcode-canvas canvas { margin: 0 auto; display: block; }
     </style>
@@ -59,18 +59,22 @@
 
         <!-- Role Selector Tabs -->
         <div class="bg-mochi-950/90 px-2 flex justify-around border-t border-amber-900/60 text-sm overflow-x-auto">
-            <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-4 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap">
+            <button onclick="switchRole('pos')" id="tab-pos" class="py-2.5 px-3 border-b-2 border-amber-400 font-bold text-amber-300 flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fa-solid fa-store"></i> 🛍️ หน้าบ้าน (POS)
             </button>
-            <button onclick="switchRole('display')" id="tab-display" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-desktop text-blue-400"></i> 📺 จอโชว์คิวหน้าร้าน
+            <button onclick="switchRole('preorder')" id="tab-preorder" class="py-2.5 px-3 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-1.5 whitespace-nowrap relative font-medium">
+                <i class="fa-solid fa-calendar-check text-purple-400"></i> 📅 พรีออเดอร์
+                <span id="preorder-badge" class="hidden bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
             </button>
-            <button onclick="switchRole('kitchen')" id="tab-kitchen" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap relative font-medium">
-                <i class="fa-solid fa-fire text-orange-400"></i> 🔥 เตาทอด (Kitchen)
-                <span id="kitchen-badge" class="hidden absolute top-1 right-2 bg-rose-600 text-white text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold">0</span>
+            <button onclick="switchRole('display')" id="tab-display" class="py-2.5 px-3 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-1.5 whitespace-nowrap font-medium">
+                <i class="fa-solid fa-desktop text-blue-400"></i> 📺 จอคิวหน้าร้าน
             </button>
-            <button onclick="switchRole('backoffice')" id="tab-backoffice" class="py-2.5 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 whitespace-nowrap font-medium">
-                <i class="fa-solid fa-book text-emerald-400"></i> 📊 หลังบ้าน (สต็อก & บัญชี)
+            <button onclick="switchRole('kitchen')" id="tab-kitchen" class="py-2.5 px-3 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-1.5 whitespace-nowrap relative font-medium">
+                <i class="fa-solid fa-fire text-orange-400"></i> 🔥 เตาทอด
+                <span id="kitchen-badge" class="hidden bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+            </button>
+            <button onclick="switchRole('backoffice')" id="tab-backoffice" class="py-2.5 px-3 border-b-2 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-1.5 whitespace-nowrap font-medium">
+                <i class="fa-solid fa-book text-emerald-400"></i> 📊 หลังบ้าน & บัญชี
             </button>
         </div>
     </header>
@@ -90,6 +94,17 @@
                     </span>
                 </div>
                 <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+                <!-- แถบแจ้งเตือนพรีออเดอร์ที่กำลังจะถึงเวลา (แสดงหน้า POS กันลืม) -->
+                <div id="pos-preorder-alert" class="hidden bg-purple-50 border-2 border-purple-300 rounded-2xl p-4 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-extrabold text-purple-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bell text-purple-600 animate-bounce"></i> มีรายการพรีออเดอร์รอจัดส่ง!
+                        </span>
+                        <button onclick="switchRole('preorder')" class="text-xs bg-purple-600 text-white px-3 py-1 rounded-lg font-bold hover:bg-purple-700">ดูทั้งหมด ➔</button>
+                    </div>
+                    <div id="pos-preorder-preview" class="text-xs text-purple-800 space-y-1"></div>
+                </div>
             </div>
 
             <!-- Cart Panel -->
@@ -104,30 +119,72 @@
                         </div>
                         <button onclick="clearCart()" class="text-xs text-rose-600 hover:underline">ล้างตะกร้า</button>
                     </div>
-                    <div id="cart-items" class="space-y-2.5 overflow-y-auto max-h-[300px] pr-1"></div>
+                    <div id="cart-items" class="space-y-2.5 overflow-y-auto max-h-[280px] pr-1"></div>
                 </div>
 
-                <div class="border-t border-amber-100 pt-3 space-y-3">
+                <div class="border-t border-amber-100 pt-3 space-y-2.5">
                     <div class="flex justify-between items-center text-base font-bold text-mochi-950">
                         <span>ยอดรวมสุทธิ:</span>
                         <span id="cart-total" class="text-amber-700 text-2xl font-extrabold">฿0</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
-                        <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                        <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
                             <i class="fa-solid fa-money-bill-wave text-base"></i> เงินสด
                         </button>
-                        <button onclick="openQRModal()" class="bg-[#0F3567] hover:bg-[#0a2549] active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                        <button onclick="openQRModal()" class="bg-[#0F3567] hover:bg-[#0a2549] active:scale-95 text-white font-medium py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
                             <i class="fa-solid fa-qrcode text-base text-[#27C2A0]"></i> สแกนจ่าย QR
                         </button>
-                        <button onclick="openSplitPaymentModal()" class="bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium py-3 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
+                        <button onclick="openSplitPaymentModal()" class="bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-1 shadow-sm text-xs">
                             <i class="fa-solid fa-arrows-split-up-and-left text-base"></i> จ่ายผสม
                         </button>
                     </div>
+                    <!-- ปุ่มบันทึกเป็นพรีออเดอร์จากตะกร้าปัจจุบัน -->
+                    <button onclick="openPreorderModalFromCart()" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-2 rounded-xl transition text-xs border border-purple-300 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-calendar-plus"></i> บันทึกตะกร้านี้เป็น "พรีออเดอร์ (รับภายหลัง)"
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- ROLE 2: DISPLAY -->
+        <!-- ROLE 2: PRE-ORDER MANAGEMENT -->
+        <section id="role-preorder" class="hidden space-y-6">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-mochi-950 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-purple-600"></i> ระบบจัดการพรีออเดอร์ (Pre-order)
+                    </h2>
+                    <p class="text-xs text-stone-500">จดรายการลูกค้าที่สั่งจองล่วงหน้า แจ้งเตือนเวลานัดรับ และส่งเข้าเตาทอดในคลิกเดียว</p>
+                </div>
+                <button onclick="openNewPreorderModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm transition text-xs flex items-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-plus"></i> + จดพรีออเดอร์ใหม่
+                </button>
+            </div>
+
+            <!-- สรุปจำนวนโมจิที่ต้องเตรียมสำหรับพรีออเดอร์ทั้งหมด -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200">
+                    <p class="text-[11px] text-purple-700 font-bold mb-1">คิวพรีออเดอร์ที่รอรับ</p>
+                    <p id="pre-kpi-count" class="text-2xl font-black text-purple-900">0 ออเดอร์</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+                    <p class="text-[11px] text-amber-800 font-bold mb-1">ต้องเตรียมโมจิทั้งหมด</p>
+                    <p id="pre-kpi-pieces" class="text-2xl font-black text-amber-700">0 ชิ้น</p>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                    <p class="text-[11px] text-emerald-800 font-bold mb-1">ยอดเงินโอนจ่ายแล้ว</p>
+                    <p id="pre-kpi-paid" class="text-2xl font-black text-emerald-700">฿0</p>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200">
+                    <p class="text-[11px] text-rose-800 font-bold mb-1">รอเก็บเงินตอนรับของ</p>
+                    <p id="pre-kpi-unpaid" class="text-2xl font-black text-rose-600">฿0</p>
+                </div>
+            </div>
+
+            <!-- รายการการ์ดพรีออเดอร์ เรียงตามเวลานัดรับ -->
+            <div id="preorder-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- ROLE 3: DISPLAY -->
         <section id="role-display" class="hidden space-y-4">
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-amber-200 text-center">
                 <h2 class="text-xl font-bold text-mochi-950 mb-1">📺 สถานะคิวรับโมจิทอดหน้าร้าน</h2>
@@ -151,7 +208,7 @@
             </div>
         </section>
 
-        <!-- ROLE 3: KITCHEN -->
+        <!-- ROLE 4: KITCHEN -->
         <section id="role-kitchen" class="hidden space-y-4">
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
                 <div class="flex justify-between items-center border-b border-amber-100 pb-3">
@@ -166,7 +223,7 @@
             </div>
         </section>
 
-        <!-- ROLE 4: BACKOFFICE & DETAILED ACCOUNTING -->
+        <!-- ROLE 5: BACKOFFICE & DETAILED ACCOUNTING -->
         <section id="role-backoffice" class="hidden space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-3">
                 <div>
@@ -303,7 +360,99 @@
         </section>
     </main>
 
-    <!-- OPTION MODAL -->
+    <!-- NEW PRE-ORDER MODAL -->
+    <div id="preorder-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-purple-100 pb-3">
+                <h3 class="font-bold text-purple-950 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-plus text-purple-600"></i> จดรายการพรีออเดอร์ (จองล่วงหน้า)
+                </h3>
+                <button onclick="closePreorderModal()" class="text-stone-400 hover:text-stone-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">ชื่อลูกค้า / ชื่อไลน์ / เฟซ *</label>
+                    <input type="text" id="pre-cust-name" placeholder="เช่น คุณนุ่น, น้องมายด์" class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">เบอร์โทร / ช่องทางติดต่อ</label>
+                    <input type="text" id="pre-cust-phone" placeholder="เช่น 089-xxx-xxxx" class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">วันที่นัดรับ *</label>
+                    <input type="date" id="pre-pickup-date" class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">เวลานัดรับ *</label>
+                    <input type="time" id="pre-pickup-time" class="w-full p-2.5 border border-stone-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- เลือกรายการสินค้าในพรีออเดอร์ -->
+            <div class="bg-purple-50/70 p-3 rounded-xl border border-purple-200 space-y-2.5 text-xs">
+                <p class="font-bold text-purple-900">เพิ่มรายการโมจิที่ลูกค้าสั่ง:</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="pre-select-size" class="p-2 border border-purple-300 rounded-lg bg-white font-bold text-stone-800">
+                        <option value="m_small">โมจิทอด ไซส์เล็ก (฿25)</option>
+                        <option value="m_large">โมจิทอด ไซส์ใหญ่ (฿35)</option>
+                    </select>
+                    <div class="flex items-center gap-1">
+                        <span class="text-stone-600">จำนวน:</span>
+                        <input type="number" id="pre-select-qty" value="1" min="1" class="w-16 p-2 border border-purple-300 rounded-lg bg-white text-center font-bold">
+                        <span class="text-stone-600">ชุด</span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <label class="inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-purple-200 cursor-pointer">
+                        <input type="checkbox" class="pre-opt-chk accent-purple-600" value="opt_hershey"> ซอสเฮอร์ชีส์ (+5)
+                    </label>
+                    <label class="inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-purple-200 cursor-pointer">
+                        <input type="checkbox" class="pre-opt-chk accent-purple-600" value="opt_oreo"> โอริโอ้ (+5)
+                    </label>
+                    <label class="inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-purple-200 cursor-pointer">
+                        <input type="checkbox" class="pre-opt-chk accent-purple-600" value="opt_milo"> ผงไมโล (+5)
+                    </label>
+                    <label class="inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-purple-200 cursor-pointer">
+                        <input type="checkbox" class="pre-opt-chk accent-purple-600" value="opt_banana"> กล้วย (+10)
+                    </label>
+                </div>
+                <button type="button" onclick="addPreorderTempItem()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg transition">
+                    + เพิ่มรายการนี้เข้าพรีออเดอร์
+                </button>
+
+                <!-- รายการที่เลือกไว้ในพรีออเดอร์ -->
+                <div id="pre-temp-items-list" class="space-y-1.5 pt-2 border-t border-purple-200 max-h-32 overflow-y-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">สถานะการชำระเงิน *</label>
+                    <select id="pre-pay-status" class="w-full p-2.5 border border-stone-300 rounded-xl font-bold text-stone-800">
+                        <option value="unpaid">⏳ ยังไม่จ่าย (จ่ายตอนรับของ)</option>
+                        <option value="paid_qr">✅ โอนจ่ายครบแล้ว (PromptPay)</option>
+                        <option value="paid_cash">✅ จ่ายเงินสดครบแล้ว</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-stone-700 mb-1">หมายเหตุเพิ่มเติม</label>
+                    <input type="text" id="pre-note" placeholder="เช่น แยกซอส, ฝากไว้หน้าบ้าน" class="w-full p-2.5 border border-stone-300 rounded-xl">
+                </div>
+            </div>
+
+            <div class="border-t border-stone-100 pt-3 flex justify-between items-center">
+                <div>
+                    <span class="text-xs text-stone-500">ยอดรวมพรีออเดอร์:</span>
+                    <p id="pre-modal-total" class="text-2xl font-black text-purple-700">฿0</p>
+                </div>
+                <button onclick="savePreorder()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition text-sm">
+                    บันทึกพรีออเดอร์ ✓
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION MODAL (POS) -->
     <div id="option-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl space-y-4">
             <div class="flex justify-between items-start border-b border-amber-100 pb-3">
@@ -368,12 +517,10 @@
     <!-- MAKE BY KBANK STYLE PROMPTPAY QR MODAL -->
     <div id="qr-modal" class="fixed inset-0 bg-stone-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-[#EBF7F9] rounded-3xl max-w-[340px] w-full p-4 shadow-2xl space-y-3 relative">
-            <!-- Close Button -->
             <button onclick="closeQRModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-500 hover:text-stone-800 flex items-center justify-center shadow-sm transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <!-- MAKE by KBank Header Logo -->
             <div class="text-center pt-1">
                 <div class="inline-flex items-baseline justify-center font-extrabold text-2xl tracking-tight">
                     <span class="text-[#19B596]">m</span><span class="text-[#124B78]">a</span><span class="text-[#19B596]">k</span><span class="text-[#124B78]">e</span>
@@ -381,9 +528,7 @@
                 <p class="text-[10px] text-stone-400 font-medium -mt-1">by <span class="font-bold text-stone-500">KBank</span></p>
             </div>
 
-            <!-- White Card Container -->
             <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-stone-100">
-                <!-- Navy Blue Top Banner -->
                 <div class="bg-[#0F3567] text-white py-2.5 px-4 flex items-center justify-center gap-2.5">
                     <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-qrcode text-[#0F3567] text-lg"></i>
@@ -394,24 +539,19 @@
                     </div>
                 </div>
 
-                <!-- Card Body -->
                 <div class="p-4 text-center space-y-2.5">
-                    <!-- PromptPay Badge -->
                     <div class="inline-block border border-[#0F3567] px-2.5 py-0.5 rounded bg-white">
                         <span class="text-[8px] text-stone-500 block leading-none text-right">พร้อมเพย์</span>
                         <span class="font-black text-xs text-[#0F3567] tracking-tight">Prompt<span class="text-[#1D70B8]">Pay</span></span>
                     </div>
 
-                    <!-- Amount Tag -->
                     <div class="bg-sky-50 border border-sky-200 rounded-xl py-1.5 px-3">
                         <span class="text-[10px] text-stone-500 block">ยอดชำระเงิน (ล็อกยอดอัตโนมัติ)</span>
                         <span id="qr-modal-total" class="text-2xl font-black text-[#0F3567]">฿0</span>
                     </div>
 
-                    <!-- Dynamic QR Code with Center Icon -->
                     <div class="relative inline-block p-2 bg-white">
                         <div id="qrcode-canvas" class="flex justify-center items-center"></div>
-                        <!-- Center Thai QR Overlay Badge -->
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div class="w-9 h-9 bg-white rounded-lg shadow-sm border border-stone-200 flex items-center justify-center">
                                 <div class="w-6 h-6 rounded bg-[#0F3567] flex items-center justify-center text-white text-[10px] font-black">
@@ -421,7 +561,6 @@
                         </div>
                     </div>
 
-                    <!-- Account Details (Exact match from Make by KBank slip) -->
                     <div class="space-y-0.5 pt-1">
                         <p class="text-xs font-bold text-[#19B596]">สแกน QR เพื่อโอนเข้าบัญชี</p>
                         <p class="text-sm font-extrabold text-stone-900">น.ส. ศศิพิมล แสนบน</p>
@@ -429,7 +568,6 @@
                         <p class="text-[10px] text-stone-400">เลขที่อ้างอิง 004666016578308</p>
                     </div>
 
-                    <!-- Bottom Bank Footer -->
                     <div class="border-t border-stone-100 pt-2.5 mt-2 flex justify-between items-center text-left">
                         <div>
                             <p class="text-[10px] text-stone-400 leading-tight">Accepts all banks</p>
@@ -442,7 +580,6 @@
                 </div>
             </div>
 
-            <!-- Confirm Payment Button -->
             <button onclick="confirmQRSale()" class="w-full bg-[#19B596] hover:bg-[#14967c] active:scale-95 text-white font-bold py-3 rounded-2xl transition text-sm shadow-md flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-check"></i> ยืนยันได้รับเงินแล้ว
             </button>
@@ -510,10 +647,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // รหัส PromptPay e-Wallet / MAKE by KBank Ref ID ของคุณ ศศิพิมล แสนบน
         const MAKE_PROMPTPAY_ID = '004666016578308';
 
-        // ฟังก์ชันสร้าง Thai QR Code มาตรฐาน EMVCo (ล็อกยอดเงินตามบิลอัตโนมัติ)
         function crc16(data) {
             let crc = 0xFFFF;
             for (let i = 0; i < data.length; i++) {
@@ -532,19 +667,18 @@
 
         function generateThaiQRPayload(promptpayId, amount) {
             const aid = f('00', 'A000000677010111');
-            // 15 digits = e-Wallet ID (Tag 03)
             const targetTag = promptpayId.length === 15 ? f('03', promptpayId) : f('02', promptpayId);
             const merchantInfo = f('29', aid + targetTag);
             const amountStr = Number(amount).toFixed(2);
 
             let payload = 
-                f('00', '01') +          // Payload Format Indicator
-                f('01', '12') +          // Dynamic QR (ล็อกยอดเงิน)
-                merchantInfo +           // Merchant Account Info
-                f('53', '764') +         // THB Currency
-                f('54', amountStr) +     // Transaction Amount
-                f('58', 'TH') +          // Country Code
-                '6304';                  // CRC Tag
+                f('00', '01') +
+                f('01', '12') +
+                merchantInfo +
+                f('53', '764') +
+                f('54', amountStr) +
+                f('58', 'TH') +
+                '6304';
 
             return payload + crc16(payload);
         }
@@ -566,10 +700,12 @@
         window.salesHistory = [];
         window.expenses = [];
         window.bakingOrders = [];
+        window.preorders = [];
         window.currentQueue = 1;
         window.ledgerFilter = 'all';
 
         window.cart = [];
+        window.preorderTempItems = [];
         window.activeModalProduct = null;
         window.selectedOptions = [];
         window.numpadAmountStr = "0";
@@ -630,6 +766,12 @@
                 renderVisualQueueDisplay();
             });
 
+            // Sync Preorders
+            onSnapshot(collection(db, "mochi_preorders"), (snapshot) => {
+                window.preorders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderPreorders();
+            });
+
             onSnapshot(doc(db, "mochi_settings", "queue"), (docSnap) => {
                 if (docSnap.exists()) {
                     window.currentQueue = docSnap.data().value || 1;
@@ -642,7 +784,8 @@
             setInterval(() => {
                 renderKitchenMonitor();
                 renderVisualQueueDisplay();
-            }, 1000);
+                renderPreorders();
+            }, 5000);
         });
 
         function updateStockUI() {
@@ -671,7 +814,7 @@
         };
 
         window.switchRole = function(roleId) {
-            ['pos', 'display', 'kitchen', 'backoffice'].forEach(r => {
+            ['pos', 'preorder', 'display', 'kitchen', 'backoffice'].forEach(r => {
                 document.getElementById(`role-${r}`).classList.add('hidden');
                 const tab = document.getElementById(`tab-${r}`);
                 tab.classList.remove('border-amber-400', 'text-amber-300', 'font-bold');
@@ -685,17 +828,287 @@
 
             const titles = {
                 pos: 'โหมด: 🛍️ หน้าบ้าน (POS & คิดเงิน)',
+                preorder: 'โหมด: 📅 ระบบพรีออเดอร์ (Pre-order)',
                 display: 'โหมด: 📺 จอโชว์คิวหน้าร้าน',
                 kitchen: 'โหมด: 🔥 เตาทอด (Kitchen)',
                 backoffice: 'โหมด: 📊 หลังบ้าน (สต็อก & บัญชี)'
             };
             document.getElementById('role-title-tag').innerText = titles[roleId];
 
+            if (roleId === 'preorder') renderPreorders();
             if (roleId === 'display') renderVisualQueueDisplay();
             if (roleId === 'kitchen') renderKitchenMonitor();
             if (roleId === 'backoffice') { updateStockUI(); renderAccounting(); }
         };
 
+        // ================= PRE-ORDER SYSTEM =================
+        window.openNewPreorderModal = function() {
+            window.preorderTempItems = [];
+            document.getElementById('pre-cust-name').value = '';
+            document.getElementById('pre-cust-phone').value = '';
+            document.getElementById('pre-note').value = '';
+            document.getElementById('pre-pay-status').value = 'unpaid';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pre-pickup-date').value = today;
+            document.getElementById('pre-pickup-time').value = '17:00';
+            
+            renderPreorderTempItems();
+            document.getElementById('preorder-modal').classList.remove('hidden');
+        };
+
+        window.openPreorderModalFromCart = function() {
+            if (window.cart.length === 0) return alert('กรุณาเลือกเมนูก่อนบันทึกพรีออเดอร์');
+            window.preorderTempItems = window.cart.map(item => ({ ...item }));
+            document.getElementById('pre-cust-name').value = '';
+            document.getElementById('pre-cust-phone').value = '';
+            document.getElementById('pre-note').value = '';
+            document.getElementById('pre-pay-status').value = 'unpaid';
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pre-pickup-date').value = today;
+            document.getElementById('pre-pickup-time').value = '17:00';
+
+            renderPreorderTempItems();
+            document.getElementById('preorder-modal').classList.remove('hidden');
+        };
+
+        window.closePreorderModal = function() {
+            document.getElementById('preorder-modal').classList.add('hidden');
+        };
+
+        window.addPreorderTempItem = function() {
+            const sizeId = document.getElementById('pre-select-size').value;
+            const qty = parseInt(document.getElementById('pre-select-qty').value) || 1;
+            const product = window.products.find(p => p.id === sizeId) || DEFAULT_PRODUCTS[0];
+
+            const checkedBoxes = document.querySelectorAll('.pre-opt-chk:checked');
+            const selectedOpts = [];
+            checkedBoxes.forEach(chk => {
+                const opt = MOCHI_OPTIONS.find(o => o.id === chk.value);
+                if (opt) selectedOpts.push(opt);
+                chk.checked = false;
+            });
+
+            const optionNames = selectedOpts.map(o => o.name).join(' + ');
+            const price = product.basePrice + selectedOpts.reduce((sum, o) => sum + o.priceAdd, 0);
+            const key = `${product.id}_${optionNames}`;
+
+            const existing = window.preorderTempItems.find(i => i.key === key);
+            if (existing) existing.qty += qty;
+            else window.preorderTempItems.push({ key, productId: product.id, name: product.name, optionName: optionNames, price, qty });
+
+            document.getElementById('pre-select-qty').value = 1;
+            renderPreorderTempItems();
+        };
+
+        window.removePreorderTempItem = function(idx) {
+            window.preorderTempItems.splice(idx, 1);
+            renderPreorderTempItems();
+        };
+
+        function renderPreorderTempItems() {
+            const container = document.getElementById('pre-temp-items-list');
+            if (window.preorderTempItems.length === 0) {
+                container.innerHTML = `<p class="text-center text-stone-400 py-2">ยังไม่มีรายการในพรีออเดอร์นี้</p>`;
+                document.getElementById('pre-modal-total').innerText = '฿0';
+                return;
+            }
+            let total = 0;
+            container.innerHTML = window.preorderTempItems.map((item, idx) => {
+                total += item.price * item.qty;
+                return `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-purple-200">
+                        <div>
+                            <span class="font-bold text-stone-800">${item.name}</span>
+                            ${item.optionName ? `<span class="text-[10px] text-purple-700 block">+ ${item.optionName}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-purple-900">x${item.qty} (฿${item.price * item.qty})</span>
+                            <button type="button" onclick="removePreorderTempItem(${idx})" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('pre-modal-total').innerText = `฿${total}`;
+        }
+
+        window.savePreorder = async function() {
+            const custName = document.getElementById('pre-cust-name').value.trim();
+            const custPhone = document.getElementById('pre-cust-phone').value.trim();
+            const pickupDate = document.getElementById('pre-pickup-date').value;
+            const pickupTime = document.getElementById('pre-pickup-time').value;
+            const payStatus = document.getElementById('pre-pay-status').value;
+            const note = document.getElementById('pre-note').value.trim();
+
+            if (!custName) return alert('กรุณากรอกชื่อลูกค้า');
+            if (!pickupDate || !pickupTime) return alert('กรุณาระบุวันที่และเวลานัดรับ');
+            if (window.preorderTempItems.length === 0) return alert('กรุณาเพิ่มรายการโมจิอย่างน้อย 1 รายการ');
+
+            const total = window.preorderTempItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
+
+            await addDoc(collection(db, "mochi_preorders"), {
+                custName,
+                custPhone: custPhone || '-',
+                pickupDate,
+                pickupTime,
+                pickupTimestamp: new Date(`${pickupDate}T${pickupTime}`).getTime(),
+                items: [...window.preorderTempItems],
+                total,
+                payStatus,
+                note: note || '-',
+                status: 'Pending',
+                createdAt: Date.now()
+            });
+
+            window.clearCart();
+            window.closePreorderModal();
+            alert(`บันทึกพรีออเดอร์ของ "${custName}" เรียบร้อย!`);
+        };
+
+        window.sendPreorderToKitchen = async function(preorderId) {
+            const pre = window.preorders.find(p => p.id === preorderId);
+            if (!pre) return;
+
+            const totalPieces = pre.items.reduce((sum, i) => sum + i.qty, 0);
+            if (totalPieces > window.sharedMochiStock) {
+                if (!confirm(`สต็อกโมจิพร้อมทอดมี ${window.sharedMochiStock} ชิ้น (ออเดอร์นี้ใช้ ${totalPieces} ชิ้น) ยืนยันที่จะส่งเข้าเตาทอดหรือไม่?`)) return;
+            }
+
+            // 1. ตัดสต็อกรวม
+            const remainingStock = Math.max(0, window.sharedMochiStock - totalPieces);
+            await setDoc(doc(db, "mochi_settings", "shared_stock"), { count: remainingStock });
+
+            // 2. ส่งเข้าเตาทอด (Kitchen)
+            await addDoc(collection(db, "mochi_bakingOrders"), {
+                queue: `${window.currentQueue} (พรี: ${pre.custName})`,
+                items: [...pre.items],
+                stage: 'Grilling',
+                status: 'Baking',
+                stageStartTime: Date.now()
+            });
+
+            // 3. บันทึกรายรับเข้าบัญชี
+            const now = new Date();
+            const payLabel = pre.payStatus === 'paid_qr' ? 'พรีออเดอร์ (โอนPromptPay)' : (pre.payStatus === 'paid_cash' ? 'พรีออเดอร์ (เงินสด)' : 'พรีออเดอร์ (จ่ายหน้าร้าน)');
+            await addDoc(collection(db, "mochi_sales"), {
+                queue: `${window.currentQueue} (${pre.custName})`,
+                date: now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+                time: now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                createdAt: Date.now(),
+                items: [...pre.items],
+                revenue: pre.total,
+                paymentMethod: payLabel,
+                splitQR: pre.payStatus === 'paid_qr' ? pre.total : 0,
+                splitCash: pre.payStatus !== 'paid_qr' ? pre.total : 0
+            });
+
+            // 4. อัปเดตคิว & ปิดสถานะพรีออเดอร์
+            await setDoc(doc(db, "mochi_settings", "queue"), { value: window.currentQueue + 1 });
+            await updateDoc(doc(db, "mochi_preorders", preorderId), { status: 'Completed' });
+
+            alert(`ส่งออเดอร์ของ "${pre.custName}" เข้าเตาทอดคิว #${window.currentQueue} และลงบัญชีเรียบร้อย!`);
+        };
+
+        window.deletePreorder = async function(preorderId) {
+            if (!confirm('ต้องการยกเลิก/ลบพรีออเดอร์นี้ใช่หรือไม่?')) return;
+            await deleteDoc(doc(db, "mochi_preorders", preorderId));
+        };
+
+        function renderPreorders() {
+            const pendingList = window.preorders
+                .filter(p => p.status !== 'Completed')
+                .sort((a, b) => (a.pickupTimestamp || 0) - (b.pickupTimestamp || 0));
+
+            // Badge บนเมนู
+            const badge = document.getElementById('preorder-badge');
+            badge.innerText = pendingList.length;
+            badge.classList.toggle('hidden', pendingList.length === 0);
+
+            // แถบแจ้งเตือนหน้า POS
+            const posAlert = document.getElementById('pos-preorder-alert');
+            const posPreview = document.getElementById('pos-preorder-preview');
+            if (pendingList.length > 0) {
+                posAlert.classList.remove('hidden');
+                posPreview.innerHTML = pendingList.slice(0, 2).map(p => `
+                    <div class="flex justify-between items-center bg-white/80 px-2.5 py-1.5 rounded-lg border border-purple-200">
+                        <span><b>${p.custName}</b> (นัดรับ ${p.pickupDate} เวลา ${p.pickupTime} น.)</span>
+                        <span class="font-bold text-purple-900">฿${p.total}</span>
+                    </div>
+                `).join('');
+            } else {
+                posAlert.classList.add('hidden');
+            }
+
+            // KPI
+            const totalPieces = pendingList.reduce((sum, p) => sum + p.items.reduce((s, i) => s + i.qty, 0), 0);
+            const totalPaid = pendingList.filter(p => p.payStatus !== 'unpaid').reduce((sum, p) => sum + p.total, 0);
+            const totalUnpaid = pendingList.filter(p => p.payStatus === 'unpaid').reduce((sum, p) => sum + p.total, 0);
+
+            document.getElementById('pre-kpi-count').innerText = `${pendingList.length} ออเดอร์`;
+            document.getElementById('pre-kpi-pieces').innerText = `${totalPieces} ชิ้น`;
+            document.getElementById('pre-kpi-paid').innerText = `฿${totalPaid.toLocaleString()}`;
+            document.getElementById('pre-kpi-unpaid').innerText = `฿${totalUnpaid.toLocaleString()}`;
+
+            const container = document.getElementById('preorder-list-container');
+            if (pendingList.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400 bg-white rounded-2xl border border-amber-100"><i class="fa-solid fa-calendar-check text-4xl mb-2"></i><p class="text-sm">ไม่มีรายการพรีออเดอร์ที่ค้างส่งขณะนี้</p></div>`;
+                return;
+            }
+
+            const now = Date.now();
+            container.innerHTML = pendingList.map(p => {
+                const isUrgent = (p.pickupTimestamp - now) <= 3600000; // ใกล้ถึงเวลาภายใน 1 ชม. หรือเลยเวลาแล้ว
+                const isPaid = p.payStatus !== 'unpaid';
+
+                return `
+                    <div class="bg-white rounded-2xl p-4 border-2 ${isUrgent ? 'border-rose-400 bg-rose-50/20' : 'border-purple-200'} shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-start border-b border-stone-100 pb-2">
+                                <div>
+                                    <h4 class="font-black text-mochi-950 text-base">${p.custName}</h4>
+                                    <span class="text-[11px] text-stone-500"><i class="fa-solid fa-phone"></i> ${p.custPhone}</span>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-xl text-[11px] font-bold ${isUrgent ? 'bg-rose-600 text-white animate-pulse' : 'bg-purple-100 text-purple-900'}">
+                                    ⏰ ${p.pickupDate} | ${p.pickupTime} น.
+                                </span>
+                            </div>
+
+                            <div class="space-y-1 text-xs bg-stone-50 p-2.5 rounded-xl">
+                                ${p.items.map(i => `
+                                    <div class="flex justify-between text-stone-800">
+                                        <span>• ${i.name} ${i.optionName ? `(+${i.optionName})` : ''}</span>
+                                        <span class="font-bold">x${i.qty}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            ${p.note !== '-' ? `<p class="text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg">📝 หมายเหตุ: ${p.note}</p>` : ''}
+                        </div>
+
+                        <div class="border-t border-stone-100 pt-2.5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
+                                    ${isPaid ? '✅ จ่ายเงินแล้ว' : '⏳ เก็บเงินตอนรับของ'}
+                                </span>
+                                <span class="text-lg font-black text-purple-800">฿${p.total}</span>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button onclick="deletePreorder('${p.id}')" class="px-3 py-2 rounded-xl bg-stone-100 hover:bg-rose-100 text-stone-500 hover:text-rose-600 text-xs font-bold transition">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                                <button onclick="sendPreorderToKitchen('${p.id}')" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition active:scale-95">
+                                    🔥 ส่งเข้าเตาทอด & ลงบัญชี
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================= POS & PRODUCTS =================
         function renderProducts() {
             const grid = document.getElementById('product-grid');
             const hasStock = window.sharedMochiStock > 0;
@@ -728,9 +1141,9 @@
             document.getElementById('modal-product-name').innerText = product.name;
             
             document.getElementById('modal-options-list').innerHTML = MOCHI_OPTIONS.map(opt => `
-                <label onclick="toggleOption('${opt.id}')" class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50 transition">
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50 transition">
                     <div class="flex items-center gap-2.5">
-                        <input type="checkbox" id="chk_${opt.id}" class="w-4 h-4 accent-amber-700">
+                        <input type="checkbox" id="chk_${opt.id}" onchange="toggleOption('${opt.id}', this.checked)" class="w-4 h-4 accent-amber-700">
                         <span class="text-sm font-medium text-stone-800">${opt.name}</span>
                     </div>
                     <span class="text-xs font-bold text-amber-800">+฿${opt.priceAdd}</span>
@@ -741,11 +1154,15 @@
             document.getElementById('option-modal').classList.remove('hidden');
         };
 
-        window.toggleOption = function(optId) {
+        window.toggleOption = function(optId, isChecked) {
             const opt = MOCHI_OPTIONS.find(o => o.id === optId);
+            if (!opt) return;
             const idx = window.selectedOptions.findIndex(o => o.id === optId);
-            if (idx > -1) window.selectedOptions.splice(idx, 1);
-            else window.selectedOptions.push(opt);
+            if (isChecked && idx === -1) {
+                window.selectedOptions.push(opt);
+            } else if (!isChecked && idx > -1) {
+                window.selectedOptions.splice(idx, 1);
+            }
             updateModalPrice();
         };
 
@@ -803,7 +1220,7 @@
         function renderCart() {
             const container = document.getElementById('cart-items');
             if (window.cart.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-stone-400"><i class="fa-solid fa-basket-shopping text-3xl mb-2"></i><p class="text-xs">ยังไม่มีรายการในตะกร้า</p></div>`;
+                container.innerHTML = `<div class="text-center py-10 text-stone-400"><i class="fa-solid fa-basket-shopping text-3xl mb-2"></i><p class="text-xs">ยังไม่มีรายการในตะกร้า</p></div>`;
                 document.getElementById('cart-total').innerText = '฿0';
                 return;
             }
@@ -984,6 +1401,7 @@
             window.clearCart();
         }
 
+        // ================= KITCHEN & DISPLAY =================
         function renderKitchenMonitor() {
             const container = document.getElementById('kitchen-cards-container');
             const activeOrders = window.bakingOrders.filter(o => o.status !== 'Done');
@@ -1071,6 +1489,7 @@
                 `).join('');
         }
 
+        // ================= ACCOUNTING =================
         window.addExpenseManual = async function() {
             const title = document.getElementById('exp-title').value.trim();
             const amount = parseFloat(document.getElementById('exp-amount').value);
